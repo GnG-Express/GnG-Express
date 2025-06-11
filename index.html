@@ -287,23 +287,6 @@
   <script src="scripts/main.js"></script>
   <script src="scripts/home.js"></script>
     <script>
-// CONTACT FORM HANDLER
-document.getElementById('contactForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  const form = e.target;
-  const data = new FormData(form);
-  // Send to FormSubmit
-  fetch('https://formsubmit.co/gng.express001@gmail.com', {
-    method: 'POST',
-    body: data,
-    mode: 'cors'
-  }).then(() => {
-    window.location.href = 'https://gng-express.github.io/GnG-Express/contact-success.html';
-  }).catch(() => {
-    window.location.href = 'https://gng-express.github.io/GnG-Express/contact-success.html';
-  });
-});
-
 // CHECKOUT FORM HANDLER
 document.getElementById('checkoutForm').addEventListener('submit', function(e) {
   e.preventDefault();
