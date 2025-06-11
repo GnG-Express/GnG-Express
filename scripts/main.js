@@ -114,6 +114,75 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCartUI();
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+  const checkoutForm = document.getElementById('checkoutForm');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      // Build order summary from the cart
+      let cart = [];
+      try {
+        cart = JSON.parse(localStorage.getItem('cart')) || [];
+      } catch { cart = []; }
+      let summary = '';
+      let total = 0;
+      cart.forEach(item => {
+        summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
+        total += item.price * item.quantity;
+      });
+      document.getElementById('orderSummaryField').value = summary.trim();
+      document.getElementById('orderTotalField').value = `KSh ${total.toFixed(2)}`;
+      const form = e.target;
+      const data = new FormData(form);
+      // Send to FormSubmit
+      fetch('https://formsubmit.co/gng.express001@gmail.com', {
+        method: 'POST',
+        body: data,
+        mode: 'cors'
+      }).then(() => {
+        // Clear cart and form
+        localStorage.removeItem('cart');
+        if (typeof updateCartUI === 'function') updateCartUI();
+        form.reset();
+        // Show success message in modal (replace form)
+        const modalContent = form.closest('.checkout-content');
+        if (modalContent) {
+          modalContent.innerHTML = `
+            <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
+              <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">✔️</div>
+              <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Order Confirmed!</h2>
+              <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
+                Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
+                Your order has been received and is being processed.<br><br>
+                You will receive an email confirmation shortly.
+              </p>
+              <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
+            </div>
+          `;
+        }
+      }).catch(() => {
+        // Fallback: show same message
+        form.reset();
+        const modalContent = form.closest('.checkout-content');
+        if (modalContent) {
+          modalContent.innerHTML = `
+            <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
+              <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">✔️</div>
+              <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Order Confirmed!</h2>
+              <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
+                Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
+                Your order has been received and is being processed.<br><br>
+                You will receive an email confirmation shortly.
+              </p>
+              <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
+            </div>
+          `;
+        }
+      });
+    });
+  }
+});
+
 // ===== Cart Storage Functions =====
 function getCart() {
   try {

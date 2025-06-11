@@ -176,7 +176,12 @@
         <span class="total-amount">KSh 0</span>
       </div>
     </div>
-    <form class="checkout-form" id="checkoutForm" >
+    <form class="checkout-form" id="checkoutForm" method="POST">
+      <input type="hidden" name="_captcha" value="false">
+      <input type="hidden" name="_template" value="table">
+      <input type="hidden" name="_autoresponse" value="Thank you for shopping with G&G Express! Your order has been received. You will receive an email confirmation where we will discuss secure M-Pesa payment and tailor your experience to your needs.">
+      <input type="hidden" name="Order_Summary" id="orderSummaryField">
+      <input type="hidden" name="Order_Total" id="orderTotalField">
       <div class="form-group">
         <label for="checkout-name">Full Name:</label>
         <input id="checkout-name" name="name" type="text" required placeholder="Your Name">
@@ -197,7 +202,6 @@
         <label for="checkout-note">Delivery Note (Optional):</label>
         <textarea id="checkout-note" name="note" rows="3" placeholder="Special instructions, alternative phone, etc."></textarea>
       </div>
-      
       <div class="next-steps">
         <h3>Next Steps</h3>
         <p>After clicking "Place Order", you'll be redirected to WhatsApp to finalize your order details with our representative. We'll discuss:</p>
@@ -210,7 +214,6 @@
         </ul>
         <p>This personalized service ensures your order meets all your requirements perfectly.</p>
       </div>
-      
       <button type="submit" class="place-order-btn">Place Order</button>
     </form>
   </div>

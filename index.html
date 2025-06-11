@@ -286,37 +286,7 @@
   <!-- JavaScript -->
   <script src="scripts/main.js"></script>
   <script src="scripts/home.js"></script>
-    <script>
-// CHECKOUT FORM HANDLER
-document.getElementById('checkoutForm').addEventListener('submit', function(e) {
-  e.preventDefault();
-  // Build order summary from the cart
-  let cart = [];
-  try {
-    cart = JSON.parse(localStorage.getItem('cart')) || [];
-  } catch { cart = []; }
-  let summary = '';
-  let total = 0;
-  cart.forEach(item => {
-    summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
-    total += item.price * item.quantity;
-  });
-  document.getElementById('orderSummaryField').value = summary.trim();
-  document.getElementById('orderTotalField').value = `KSh ${total.toFixed(2)}`;
-  const form = e.target;
-  const data = new FormData(form);
-  // Send to FormSubmit
-  fetch('https://formsubmit.co/gng.express001@gmail.com', {
-    method: 'POST',
-    body: data,
-    mode: 'cors'
-  }).then(() => {
-    window.location.href = 'https://gng-express.github.io/GnG-Express/order-success.html';
-  }).catch(() => {
-    window.location.href = 'https://gng-express.github.io/GnG-Express/order-success.html';
-  });
-});
-</script>
+
 
 </body>
 </html>

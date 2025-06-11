@@ -118,4 +118,54 @@ document.addEventListener('DOMContentLoaded', function() {
     localStorage.setItem(formKey, JSON.stringify(history));
     return true;
   }
+
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = new FormData(form);
+      // Send to FormSubmit
+      fetch('https://formsubmit.co/gng.express001@gmail.com', {
+        method: 'POST',
+        body: data,
+        mode: 'cors'
+      }).then(() => {
+        form.reset();
+        // Show success message in form container
+        const container = form.parentNode;
+        if (container) {
+          container.innerHTML = `
+            <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
+              <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">💬</div>
+              <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Message Sent!</h2>
+              <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
+                Thank you for reaching out to <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>.<br>
+                Your inquiry has been received.<br><br>
+                Our team will respond within 24 hours via email or WhatsApp.
+              </p>
+              <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
+            </div>
+          `;
+        }
+      }).catch(() => {
+        form.reset();
+        const container = form.parentNode;
+        if (container) {
+          container.innerHTML = `
+            <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
+              <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">💬</div>
+              <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Message Sent!</h2>
+              <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
+                Thank you for reaching out to <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>.<br>
+                Your inquiry has been received.<br><br>
+                Our team will respond within 24 hours via email or WhatsApp.
+              </p>
+              <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
+            </div>
+          `;
+        }
+      });
+    });
+  }
 });
