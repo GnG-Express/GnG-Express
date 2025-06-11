@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us | G&G Express - Premium Kenyan Rice</title>
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/about.css">
+  <link rel="stylesheet" href="./styles/home.css">
+
+  <!-- Font Imports -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="preloader">
+    <span class="loader"></span>
+  </div>
+
+  <!-- Header directly included -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-link">
+        <img src="./assets/G&G.jpg" alt="G&G Express" class="logo">
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-icons">
+        <div class="cart-icon" data-cart-toggle>
+          🛒 <span class="cart-count">0</span>
+        </div>
+        <div class="profile-dropdown">
+          <button class="profile-icon">👤</button>
+          <div class="dropdown-content">
+            <a href="signup.html">Sign Up</a>
+            <a href="login.html">Log In</a>
+          </div>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-controls="mainNav" aria-expanded="false">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="about-page">
+    <!-- Hero Section -->
+    <section class="about-hero">
+      <div class="hero-content">
+        <h1>Our Story</h1>
+        <h2>From Farm to Table</h2>
+        <p>Discover the journey of G&G Express and our commitment to quality</p>
+        <button class="btn-primary" onclick="window.location.href='about.html#process'">Our Process</button>
+
+      </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="mission-section">
+      <div class="section-container">
+        <div class="mission-content">
+          <div class="mission-text">
+            <h2>Our Mission</h2>
+            <p>At G&G Express, we're dedicated to bringing you the finest Kenyan Pishori rice directly from Mwea farms to your table. We eliminate middlemen to ensure you get the freshest rice at fair prices while supporting local farmers.</p>
+            <div class="mission-stats">
+              <div class="stat-card">
+                <span class="stat-number">100+</span>
+                <span class="stat-label">Farmers Supported</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-number">10,000+</span>
+                <span class="stat-label">Happy Customers</span>
+              </div>
+              <div class="stat-card">
+                <span class="stat-number">0</span>
+                <span class="stat-label">Middlemen</span>
+              </div>
+            </div>
+          </div>
+          <div class="mission-image">
+            <img src="./assets/pishori-farmer.png" alt="Pishori Rice Farmer">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Farmers Section -->
+    <section class="farmers-section" id="farmers">
+      <div class="section-container">
+        <h2>Meet Our Farmers</h2>
+        <p class="section-subtitle">The backbone of our premium quality rice</p>
+        
+        <div class="farmers-grid">
+          <div class="farmer-card">
+            <div class="farmer-image">
+              <img src="./assets/farmer1.PNG" alt="Farmer John">
+            </div>
+            <div class="farmer-details">
+              <h3>John Mwangi</h3>
+              <p class="farmer-location">Mwea, Kirinyaga</p>
+              <p class="farmer-bio">With over 20 years of experience growing Pishori rice, John ensures only the highest quality grains make it to your table.</p>
+            </div>
+          </div>
+          
+          <div class="farmer-card">
+            <div class="farmer-image">
+              <img src="./assets/farmer2.PNG" alt="Farmer Grace">
+            </div>
+            <div class="farmer-details">
+              <h3>Grace Wanjiku</h3>
+              <p class="farmer-location">Mwea, Kirinyaga</p>
+              <p class="farmer-bio">Grace's family has been cultivating rice for generations, using sustainable methods that preserve the land.</p>
+            </div>
+          </div>
+          
+          <div class="farmer-card">
+            <div class="farmer-image">
+              <img src="./assets/farmer3.webp" alt="Farmer James">
+            </div>
+            <div class="farmer-details">
+              <h3>James Kamau</h3>
+              <p class="farmer-location">Mwea, Kirinyaga</p>
+              <p class="farmer-bio">James is passionate about organic farming practices that enhance the natural flavor of Pishori rice.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Process Section -->
+    <section class="process-section" id="process">
+      <div class="section-container">
+        <h2>Our Process</h2>
+        <p class="section-subtitle">From seed to package - our commitment to quality at every step</p>
+        
+        <div class="process-steps">
+          <div class="process-step">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3>Cultivation</h3>
+              <p>Our farmers use traditional methods combined with modern sustainable practices to grow premium Pishori rice.</p>
+            </div>
+          </div>
+          
+          <div class="process-step">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3>Harvesting</h3>
+              <p>Rice is harvested at peak maturity and carefully dried to preserve quality and flavor.</p>
+            </div>
+          </div>
+          
+          <div class="process-step">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3>Milling</h3>
+              <p>State-of-the-art milling ensures minimal breakage and maximum grain integrity.</p>
+            </div>
+          </div>
+          
+          <div class="process-step">
+            <div class="step-number">4</div>
+            <div class="step-content">
+              <h3>Packaging</h3>
+              <p>Rice is promptly packaged using proper methods to preserve freshness while maintaining an appealing presentation.</p>
+            </div>
+          </div>
+          
+          <div class="process-step">
+            <div class="step-number">5</div>
+            <div class="step-content">
+              <h3>Delivery</h3>
+              <p>Fast delivery ensures you receive the freshest rice possible, at the soonest.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="about-cta">
+      <div class="cta-content">
+        <h2>Experience the Pishori Difference</h2>
+        <p>Join thousands of satisfied customers enjoying premium Kenyan rice</p>
+        <a href="index.html" class="btn-primary">Shop Now</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer directly included -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h3>G&G Express</h3>
+        <p>Direct from Mwea farms to your table</p>
+        <div class="footer-social">
+          <a href="#" class="social-icon">Facebook</a>
+          <a href="#" class="social-icon">Instagram</a>
+          <a href="#" class="social-icon">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="links-column">
+          <h4>Shop</h4>
+          <a href="index.html">All Products</a>
+          <a href="coming-soon.html" class="coming-soon-link">Bulk Orders</a>
+          <a href="coming-soon.html" class="coming-soon-link">Subscription</a>
+        </div>
+        <div class="links-column">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="about.html#farmers">Our Farmers</a>
+          <a href="contact.html">Contact Us</a>
+        </div>
+        <div class="links-column">
+          <h4>Info</h4>
+          <a href="contact.html#faqs">FAQs</a>
+          <a href="terms.html">Terms & Privacy</a>
+          <a href="customer-guide.html">Customer Guide</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>&copy; 2025 G&G Express. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Cart panel and overlay directly included -->
+  <div id="cart-overlay" class="cart-overlay"></div>
+  <div id="cart-panel" class="cart-panel">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+    </div>
+    <div class="cart-items">
+      <div class="empty-cart-message">
+        Your cart is empty
+      </div>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-amount">KSh 0</span>
+      </div>
+      <button class="checkout-btn" disabled>Proceed to Checkout</button>
+      <button class="checkout-btn continue-shopping-btn" type="button">Continue Shopping</button>
+    </div>
+  </div>
+
+  <!-- Product modal directly included -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <div class="modal-body">
+        <div class="modal-images">
+          <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" id="mainImage">
+          <div class="thumbnail-container">
+            <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" class="thumbnail">
+            <img src="assets/pishori-rice-closeup.png" alt="Rice Closeup" class="thumbnail">
+            <img src="assets/pishori-rice-cooked.png" alt="Cooked Rice" class="thumbnail">
+          </div>
+        </div>
+        <div class="modal-details">
+          <h2>Pishori Rice</h2>
+          <p class="price">KES <span id="modalPrice">0</span> / <span id="modalPackageLabel">-</span></p>
+          <p class="description">Premium quality Pishori rice directly from Mwea farms. Each grain is carefully selected for size and quality.</p>
+          <div class="package-selector god-tier-select">
+            <label for="package">Package:</label>
+            <select id="package" onchange="updateModalPrice()">
+              <option value="">Select package</option>
+              <option value="1">1kg - KES 220</option>
+              <option value="2">2kg - KES 420</option>
+              <option value="5">5kg - KES 1050</option>
+              <option value="10">10kg - KES 2000</option>
+              <option value="20">20kg - KES 4000</option>
+            </select>
+          </div>
+          <div class="quantity-selector">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" min="1" value="1" onchange="updateModalPrice()">
+          </div>
+          <p class="total-price">Total: KES <span id="totalPrice">0</span></p>
+          <button class="btn-primary" id="addToCartBtn" disabled>Add to Cart</button>
+          <a href="contact.html#faqs" class="help-link">
+            <i class="fas fa-question-circle"></i> Need help with your order?
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Checkout modal directly included -->
+<div id="checkout-modal" class="checkout-modal">
+  <div class="checkout-content">
+    <button class="close-checkout">&times;</button>
+    <h2>Complete Your Order</h2>
+    <div class="order-summary">
+      <h3>Order Summary</h3>
+      <div class="order-items">
+        <!-- Items will be added dynamically -->
+      </div>
+      <div class="order-total">
+        <span>Total:</span>
+        <span class="total-amount">KSh 0</span>
+      </div>
+    </div>
+    <form class="checkout-form" id="checkoutForm" >
+      <div class="form-group">
+        <label for="checkout-name">Full Name:</label>
+        <input id="checkout-name" name="name" type="text" required placeholder="Your Name">
+      </div>
+      <div class="form-group">
+        <label for="checkout-phone">Phone Number:</label>
+        <input id="checkout-phone" name="phone" type="tel" required placeholder="07XXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label for="checkout-email">Email Address:</label>
+        <input id="checkout-email" name="email" type="email" required placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label for="checkout-location">Preferred Delivery Location (Optional):</label>
+        <input id="checkout-location" name="location" type="text" placeholder="Area, building, or landmark">
+      </div>
+      <div class="form-group">
+        <label for="checkout-note">Delivery Note (Optional):</label>
+        <textarea id="checkout-note" name="note" rows="3" placeholder="Special instructions, alternative phone, etc."></textarea>
+      </div>
+      
+      <div class="next-steps">
+        <h3>Next Steps</h3>
+        <p>After clicking "Place Order", you'll be redirected to WhatsApp to finalize your order details with our representative. We'll discuss:</p>
+        <ul>
+          <li>Final order confirmation and any adjustments</li>
+          <li>Delivery options and timing</li>
+          <li>Packaging preferences</li>
+          <li>Gross Order total</li>
+          <li>Secure payment via M-Pesa</li>
+        </ul>
+        <p>This personalized service ensures your order meets all your requirements perfectly.</p>
+      </div>
+      
+      <button type="submit" class="place-order-btn">Place Order</button>
+    </form>
+  </div>
+</div>
+
+  <!-- JavaScript -->
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/about.js"></script>
+
+</body>
+</html>

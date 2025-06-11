@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Guide | G&G Express - Premium Kenyan Rice</title>
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/customer-guide.css">
+  <!-- Font Imports -->
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+</head>
+<body>
+  <!-- Preloader -->
+  <div id="preloader">
+    <div class="loader"></div>
+  </div>
+
+  <!-- Header directly included -->
+  <header class="site-header">
+    <div class="header-container">
+      <a href="index.html" class="logo-link">
+        <img src="./assets/G&G.jpg" alt="G&G Express" class="logo">
+      </a>
+      <nav class="main-nav" id="mainNav">
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About</a></li>
+          <li><a href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-icons">
+        <div class="cart-icon" data-cart-toggle>
+          🛒 <span class="cart-count">0</span>
+        </div>
+        <div class="profile-dropdown">
+          <button class="profile-icon">👤</button>
+          <div class="dropdown-content">
+            <a href="signup.html">Sign Up</a>
+            <a href="login.html">Log In</a>
+          </div>
+        </div>
+        <button class="nav-toggle" aria-label="Toggle navigation" aria-controls="mainNav" aria-expanded="false">
+          <span class="bar"></span>
+          <span class="bar"></span>
+          <span class="bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="customer-guide">
+    <!-- Hero Section -->
+    <section class="guide-hero">
+      <div class="hero-content">
+        <h1>G&amp;G Express Guide</h1>
+        <h2>Everything You Need for Perfect Rice</h2>
+        <p>From ordering to storage – your complete resource for premium Kenyan rice</p>
+        <div class="hero-buttons">
+          <a class="btn-primary pulse-on-hover" href="#ordering" data-offset="80">Ordering Guide</a>
+          <a class="btn-secondary pulse-on-hover" href="#faqs" data-offset="80">Quick FAQs</a>
+        </div>
+      </div>
+      <div class="scroll-indicator">
+        <div class="mouse">
+          <div class="scroller"></div>
+        </div>
+        <span>Scroll to explore</span>
+      </div>
+    </section>
+
+    <!-- Ordering Process -->
+    <section class="ordering-process god-tier-section" id="ordering">
+      <div class="section-container">
+        <h2><i class="fas fa-shopping-cart"></i> How to Place an Order</h2>
+        <p class="section-subtitle">A quick, premium experience from cart to pickup</p>
+        <div class="ordering-steps">
+          <!-- Step 1 -->
+          <div class="ordering-step" data-step="1">
+            <div class="step-icon"><i class="fas fa-cart-plus"></i></div>
+            <h3>Quick Start</h3>
+            <p>Click the <strong>cart icon</strong> at the top of any page. Then, click <strong>"Continue Shopping"</strong> to open the product selection panel.</p>
+            <div class="step-decoration"></div>
+          </div>
+          <!-- Step 2 -->
+          <div class="ordering-step" data-step="2">
+            <div class="step-icon"><i class="fas fa-box-open"></i></div>
+            <h3>Choose Your Package</h3>
+            <p>Select your preferred package size and quantity.<br>
+            <span class="step-hint">E.g., 2 × 20kg = 2 separate 20kg packages (total 40kg).</span></p>
+            <div class="step-decoration"></div>
+          </div>
+          <!-- Step 3 -->
+          <div class="ordering-step" data-step="3">
+            <div class="step-icon"><i class="fas fa-plus-square"></i></div>
+            <h3>Add to Cart &amp; Review</h3>
+            <p>Click <strong>"Add to Cart"</strong> to review your order in the cart panel.<br>
+            Adjust quantities as needed. Want different sizes? Click <strong>"Continue Shopping"</strong> again and add more.</p>
+            <div class="step-decoration"></div>
+          </div>
+          <!-- Step 4 -->
+          <div class="ordering-step" data-step="4">
+            <div class="step-icon"><i class="fas fa-credit-card"></i></div>
+            <h3>Proceed to Checkout</h3>
+            <p>When ready, click <strong>"Proceed to Checkout"</strong> and fill in your details:</p>
+            <ul class="step-list">
+              <li><strong>Name</strong> – for labeling your order</li>
+              <li><strong>Phone Number</strong> – for M-Pesa, SMS updates, and pickup/delivery calls</li>
+              <li><strong>Email</strong> – for official communication</li>
+              <li><strong>Delivery Note</strong> – alternative contacts or special instructions</li>
+              <li><strong>Delivery Location</strong> – choose what works for you</li>
+            </ul>
+            <div class="step-decoration"></div>
+          </div>
+          <!-- Step 5 -->
+          <div class="ordering-step" data-step="5">
+            <div class="step-icon"><i class="fas fa-bell"></i></div>
+            <h3>Order Notifications</h3>
+            <p>After placing your order, you'll receive three key updates:</p>
+            <ul class="step-list">
+              <li><strong>Order Confirmation</strong> – confirms we received your order</li>
+              <li><strong>Order Processed</strong> – your order is being prepared</li>
+              <li><strong>Order Ready for Pickup</strong> – we'll notify you once it's ready!</li>
+            </ul>
+            <div class="step-decoration"></div>
+          </div>
+        </div>
+        <div class="process-cta">
+          <a href="index.html#products" class="btn-primary pulse-on-hover">Start Ordering Now</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Delivery & Pickup -->
+    <section class="delivery-section">
+      <div class="section-container">
+        <h2><i class="fas fa-truck"></i> Delivery &amp; Pickup</h2>
+        <p class="section-subtitle">Flexible options to get your rice</p>
+        <div class="delivery-options">
+          <!-- Standard Delivery -->
+          <div class="option-card glow-on-hover">
+            <div class="option-header">
+              <i class="fas fa-calendar-day"></i>
+              <h3>Standard Processing</h3>
+            </div>
+            <ul class="option-details">
+              <li><i class="fas fa-check-circle"></i> Orders before 12PM processed same day</li>
+              <li><i class="fas fa-check-circle"></i> Next business day pickup available</li>
+              <li><i class="fas fa-check-circle"></i> KSh 100 (minimum) delivery fee applies</li>
+              <li><i class="fas fa-check-circle"></i> SMS/email updates at each stage</li>
+              <li><i class="fas fa-clock"></i> Delivery to your location available, upon request</li>
+            </ul>
+          </div>
+          <!-- Pickup Locations -->
+          <div class="option-card glow-on-hover">
+            <div class="option-header">
+              <i class="fas fa-map-marker-alt"></i>
+              <h3>Pickup Locations</h3>
+            </div>
+            <div class="location-grid">
+              <div class="location-card">
+                <h4>Tea Room</h4>
+                <p>Nairobi CBD<br>Mon-Sat: 8AM-5PM</p>
+                <a href="https://maps.app.goo.gl/5JV2YnKasqFMfePo9" target="_blank" class="location-link">View Map →</a>
+              </div>
+            </div>
+          </div>
+          <!-- Urgent Requests -->
+          <div class="option-card urgent glow-on-hover">
+            <div class="option-header">
+              <i class="fas fa-bolt"></i>
+              <h3>Urgent Orders</h3>
+            </div>
+            <div class="urgent-content">
+              <p>Need rice faster than standard processing?</p>
+              <ul class="option-details">
+                <li><i class="fas fa-phone-alt"></i> Call: <a href="tel:+254712071081" class="contact-link phone-link">+254 712 071 081</a></li>
+                <li><i class="fab fa-whatsapp"></i> WhatsApp: <a href="https://wa.me/254712071081" class="contact-link whatsapp-link" target="_blank" rel="noopener">+254 712 071 081</a></li>
+              </ul>
+              <div class="urgent-note">
+                <i class="fas fa-info-circle"></i> Additional fees may apply for expedited service
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Product Care -->
+    <section class="product-care">
+      <div class="section-container">
+        <h2><i class="fas fa-seedling"></i> Product Care</h2>
+        <p class="section-subtitle">Get the most from your Pishori rice</p>
+        <div class="care-grid">
+          <!-- Storage -->
+          <div class="care-card">
+            <div class="care-icon">
+              <i class="fas fa-box-open"></i>
+            </div>
+            <h3>Storage</h3>
+            <p>Keep rice in an airtight container in a cool, dry place. Properly stored, it stays fresh for up to 12 months.</p>
+            <div class="care-wave"></div>
+          </div>
+          
+          <!-- Cooking -->
+          <div class="care-card coming-soon">
+            <div class="care-icon">
+              <i class="fas fa-utensils"></i>
+            </div>
+            <h3>Cooking Guide</h3>
+            <p>Perfect rice recipes coming soon to our website!</p>
+            <div class="coming-soon-badge">Coming Soon</div>
+            <div class="care-wave"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Accordion -->
+    <section class="faq-section" id="faqs">
+      <div class="section-container">
+        <h2><i class="fas fa-question-circle"></i> Frequently Asked Questions</h2>
+        <p class="section-subtitle">Quick answers to common questions</p>
+        <div class="faq-categories">
+          <!-- Ordering -->
+          <div class="faq-category">
+            <h3><i class="fas fa-shopping-cart"></i> Ordering</h3>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq1">
+                How do I know my order was received?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq1">
+                <p>
+                  You'll receive three confirmations:
+                </p>
+                <ol>
+                  <li>Instant on-screen order confirmation</li>
+                  <li>WhatsApp message within 15 minutes (business hours)</li>
+                  <li>Email receipt with order details</li>
+                </ol>
+                <p>If you don't receive these, please check your spam folder or <a href="contact.html">contact us</a> immediately.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq2">
+                Can I modify my order after checkout?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq2">
+                <p>
+                  Absolutely. Contact us immediately through the <a href="contact.html#contactForm">contact form</a>. Changes are possible if your order hasn’t been processed.
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Payments -->
+          <div class="faq-category">
+            <h3><i class="fas fa-money-bill-wave"></i> Payments</h3>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq3">
+                What payment methods do you accept?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq3">
+                <p>We accept <strong>M-Pesa payments exclusively</strong> for fast, secure transactions. After checkout, our team will send you payment details via WhatsApp to complete your order.</p>
+                <p class="note">Coming soon: Credit/Debit card payments</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq4">
+                Is pay on pickup available for all orders?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq4">
+                <p>Pay on pickup is currently unavailable. This option will be introduced soon.</p>
+              </div>
+            </div>
+          </div>
+          <!-- Quality -->
+          <div class="faq-category">
+            <h3><i class="fas fa-award"></i> Quality</h3>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq5">
+                What if I'm not satisfied with my rice?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq5">
+                <p>
+                  We guarantee premium quality Pishori rice. If unsatisfied:
+                </p>
+                <ul>
+                  <li><strong>Unopened bags</strong>: Full refund within 7 days</li>
+                  <li><strong>Opened bags</strong>: Quality assessment for partial refund</li>
+                </ul>
+                <p>Contact us within 24 hours of delivery at <a href="tel:+254712071081">+254 712 071 081</a>.</p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq6">
+                How is your rice different from store-bought?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq6">
+                <p>
+                  Our Pishori rice is sourced directly from Mwea farmers and delivered fresh to your table—no middlemen, no broken grains, and no fillers. Experience the true taste of premium Kenyan rice.
+                </p>
+              </div>
+            </div>
+          </div>
+          <!-- Support -->
+          <div class="faq-category">
+            <h3><i class="fas fa-headset"></i> Support</h3>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq7">
+                How quickly will you respond to my inquiry?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq7">
+                <p>
+                  We respond to emails within 24 hours. For faster assistance, reach us on WhatsApp via the <a href="contact.html#contactForm">contact form</a>.
+                </p>
+              </div>
+            </div>
+            <div class="faq-item">
+              <button class="faq-question" aria-expanded="false" aria-controls="faq8">
+                Can I schedule a callback for later?
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-answer" id="faq8">
+                <p>
+                  Certainly! Use the <a href="contact.html#contactForm">contact form</a> to request a callback at your preferred time.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="faq-cta">
+          <p>
+            Still have questions?<br>
+            <a href="contact.html#contactForm" class="btn-secondary pulse-on-hover">Contact Our Team</a>
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="guide-cta">
+      <div class="cta-container">
+        <h2>Ready for Premium Pishori Rice?</h2>
+        <p>Experience the difference of farm-fresh Kenyan rice delivered with care</p>
+        <div class="cta-buttons">
+          <a href="index.html#products" class="btn-primary pulse-on-hover">Shop Now</a>
+          <a href="about.html" class="btn-secondary pulse-on-hover">Learn About Us</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer directly included -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-brand">
+        <h3>G&G Express</h3>
+        <p>Direct from Mwea farms to your table</p>
+        <div class="footer-social">
+          <a href="#" class="social-icon">Facebook</a>
+          <a href="#" class="social-icon">Instagram</a>
+          <a href="#" class="social-icon">WhatsApp</a>
+        </div>
+      </div>
+      <div class="footer-links">
+        <div class="links-column">
+          <h4>Shop</h4>
+          <a href="index.html">All Products</a>
+          <a href="coming-soon.html" class="coming-soon-link">Bulk Orders</a>
+          <a href="coming-soon.html" class="coming-soon-link">Subscription</a>
+        </div>
+        <div class="links-column">
+          <h4>Company</h4>
+          <a href="about.html">About Us</a>
+          <a href="about.html#farmers">Our Farmers</a>
+          <a href="contact.html">Contact Us</a>
+        </div>
+        <div class="links-column">
+          <h4>Info</h4>
+          <a href="contact.html#faqs">FAQs</a>
+          <a href="terms.html">Terms & Privacy</a>
+          <a href="customer-guide.html">Customer Guide</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-copyright">
+      <p>&copy; 2025 G&G Express. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Cart panel and overlay directly included -->
+  <div id="cart-overlay" class="cart-overlay"></div>
+  <div id="cart-panel" class="cart-panel">
+    <div class="cart-header">
+      <h3>Your Cart</h3>
+    </div>
+    <div class="cart-items">
+      <div class="empty-cart-message">
+        Your cart is empty
+      </div>
+    </div>
+    <div class="cart-summary">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-amount">KSh 0</span>
+      </div>
+      <button class="checkout-btn" disabled>Proceed to Checkout</button>
+      <button class="checkout-btn continue-shopping-btn" type="button">Continue Shopping</button>
+    </div>
+  </div>
+
+  <!-- Product modal directly included -->
+  <div class="modal" id="productModal">
+    <div class="modal-content">
+      <span class="close-modal" onclick="closeModal()">&times;</span>
+      <div class="modal-body">
+        <div class="modal-images">
+          <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" id="mainImage">
+          <div class="thumbnail-container">
+            <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" class="thumbnail">
+            <img src="assets/pishori-rice-closeup.png" alt="Rice Closeup" class="thumbnail">
+            <img src="assets/pishori-rice-cooked.png" alt="Cooked Rice" class="thumbnail">
+          </div>
+        </div>
+        <div class="modal-details">
+          <h2>Pishori Rice</h2>
+          <p class="price">KES <span id="modalPrice">0</span> / <span id="modalPackageLabel">-</span></p>
+          <p class="description">Premium quality Pishori rice directly from Mwea farms. Each grain is carefully selected for size and quality.</p>
+          <div class="package-selector god-tier-select">
+            <label for="package">Package:</label>
+            <select id="package" onchange="updateModalPrice()">
+              <option value="">Select package</option>
+              <option value="1">1kg - KES 220</option>
+              <option value="2">2kg - KES 420</option>
+              <option value="5">5kg - KES 1050</option>
+              <option value="10">10kg - KES 2000</option>
+              <option value="20">20kg - KES 4000</option>
+            </select>
+          </div>
+          <div class="quantity-selector">
+            <label for="quantity">Quantity:</label>
+            <input type="number" id="quantity" min="1" value="1" onchange="updateModalPrice()">
+          </div>
+          <p class="total-price">Total: KES <span id="totalPrice">0</span></p>
+          <button class="btn-primary" id="addToCartBtn" disabled>Add to Cart</button>
+          <a href="contact.html#faqs" class="help-link">
+            <i class="fas fa-question-circle"></i> Need help with your order?
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<!-- Checkout modal directly included -->
+<div id="checkout-modal" class="checkout-modal">
+  <div class="checkout-content">
+    <button class="close-checkout">&times;</button>
+    <h2>Complete Your Order</h2>
+    <div class="order-summary">
+      <h3>Order Summary</h3>
+      <div class="order-items">
+        <!-- Items will be added dynamically -->
+      </div>
+      <div class="order-total">
+        <span>Total:</span>
+        <span class="total-amount">KSh 0</span>
+      </div>
+    </div>
+    <form class="checkout-form" id="checkoutForm" >
+      <div class="form-group">
+        <label for="checkout-name">Full Name:</label>
+        <input id="checkout-name" name="name" type="text" required placeholder="Your Name">
+      </div>
+      <div class="form-group">
+        <label for="checkout-phone">Phone Number:</label>
+        <input id="checkout-phone" name="phone" type="tel" required placeholder="07XXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label for="checkout-email">Email Address:</label>
+        <input id="checkout-email" name="email" type="email" required placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label for="checkout-location">Preferred Delivery Location (Optional):</label>
+        <input id="checkout-location" name="location" type="text" placeholder="Area, building, or landmark">
+      </div>
+      <div class="form-group">
+        <label for="checkout-note">Delivery Note (Optional):</label>
+        <textarea id="checkout-note" name="note" rows="3" placeholder="Special instructions, alternative phone, etc."></textarea>
+      </div>
+      
+      <div class="next-steps">
+        <h3>Next Steps</h3>
+        <p>After clicking "Place Order", you'll be redirected to WhatsApp to finalize your order details with our representative. We'll discuss:</p>
+        <ul>
+          <li>Final order confirmation and any adjustments</li>
+          <li>Delivery options and timing</li>
+          <li>Packaging preferences</li>
+          <li>Gross Order total</li>
+          <li>Secure payment via M-Pesa</li>
+        </ul>
+        <p>This personalized service ensures your order meets all your requirements perfectly.</p>
+      </div>
+      
+      <button type="submit" class="place-order-btn">Place Order</button>
+    </form>
+  </div>
+</div>
+
+  <!-- JavaScript -->
+  <script src="./scripts/main.js"></script>
+  <script src="./scripts/customer-guide.js"></script>
+
+</body>
+</html>

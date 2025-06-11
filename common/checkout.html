@@ -1,0 +1,76 @@
+<div id="checkout-modal" class="checkout-modal">
+  <div class="checkout-content">
+    <button class="close-checkout">&times;</button>
+    <h2>Complete Your Order</h2>
+    
+    <div class="order-summary">
+      <h3>Order Summary</h3>
+      <div class="order-items">
+        <!-- Items will be added dynamically -->
+      </div>
+      <div class="order-total">
+        <span>Total:</span>
+        <span class="total-amount">KSh 0</span>
+      </div>
+      <div class="order-fee">
+        <span>Delivery/Processing Fee:</span>
+        <span class="fee-amount">KSh 100</span>
+      </div>
+      <div class="order-grand-total">
+        <span>Grand Total:</span>
+        <span class="grand-total-amount">KSh 0</span>
+      </div>
+    </div>
+    
+    <form class="checkout-form" onsubmit="submitWhatsAppOrder(event)">
+      <div class="form-group">
+        <label for="name">Full Name:</label>
+        <input id="name" name="name" type="text" required placeholder="Your Name">
+      </div>
+      <div class="form-group">
+        <label for="email">Email Address:</label>
+        <input id="email" name="email" type="email" required placeholder="you@email.com">
+      </div>
+      <div class="form-group">
+        <label for="phone">Phone Number:</label>
+        <input id="phone" name="phone" type="tel" required placeholder="07XXXXXXXX">
+      </div>
+      <div class="form-group">
+        <label for="pickup-time">Preferred Pickup Time:</label>
+        <select id="pickup-time" name="pickup-time" required>
+          <option value="">Select time</option>
+          <option value="morning">Morning (8am - 12pm)</option>
+          <option value="afternoon">Afternoon (12pm - 4pm)</option>
+          <option value="evening">Evening (4pm - 7pm)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="delivery-note">Delivery Note:</label>
+        <input id="delivery-note" name="delivery-note" type="text" placeholder="Instructions, alternative phone, etc.">
+      </div>
+      <div class="form-group">
+        <label for="pickup-location">Pickup Location:</label>
+        <select id="pickup-location" required>
+          <option value="">Select location</option>
+          <option value="cbd">Nairobi CBD - Koinange Street</option>
+          <option value="westlands">Westlands - ABC Place</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Payment Method:</label>
+        <div class="payment-options">
+          <label>
+            <input type="radio" name="payment" value="mpesa" required> 
+            M-Pesa
+          </label>
+          <label>
+            <input type="radio" name="payment" value="pickup"> 
+            Pay on Pickup
+          </label>
+        </div>
+      </div>
+      <button type="submit" class="place-order-btn">Place Order</button>
+    </form>
+  </div>
+</div>
+<script src="./scripts/whatsapp.js"></script>

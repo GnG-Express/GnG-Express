@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Order Success | G&G Express</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    .success-hero {
+      max-width: 600px;
+      margin: 8vh auto 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      box-shadow: 0 8px 40px rgba(27,60,19,0.12), 0 1.5px 0 0 #ffe066;
+      padding: 3rem 2.5rem 2.5rem 2.5rem;
+      text-align: center;
+      border-top: 8px solid var(--gold);
+      animation: fadeIn 0.7s cubic-bezier(0.4,0,0.2,1);
+    }
+    .success-hero h2 {
+      color: var(--primary);
+      font-size: 2.5rem;
+      margin-bottom: 1.2rem;
+      font-family: 'Playfair Display', serif;
+      background: linear-gradient(90deg, var(--gold), var(--primary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 1px 1px 8px rgba(212,175,55,0.12);
+    }
+    .success-hero p {
+      color: var(--dark);
+      font-size: 1.18rem;
+      margin-bottom: 2.2rem;
+      line-height: 1.7;
+    }
+    .success-icon {
+      font-size: 3.5rem;
+      color: var(--success);
+      margin-bottom: 1.2rem;
+      animation: pulse 1.2s infinite alternate;
+    }
+    .back-home {
+      display: inline-block;
+      margin-top: 1.5rem;
+      color: #fff;
+      background: linear-gradient(90deg, var(--primary), var(--gold));
+      border: none;
+      border-radius: 30px;
+      padding: 0.9em 2.2em;
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-decoration: none;
+      box-shadow: 0 4px 15px rgba(212,175,55,0.13);
+      transition: all 0.3s;
+    }
+    .back-home:hover {
+      background: linear-gradient(90deg, var(--gold), var(--primary));
+      color: #fff;
+      transform: translateY(-2px) scale(1.04);
+      box-shadow: 0 8px 30px rgba(212,175,55,0.18);
+    }
+    @keyframes pulse {
+      0% { transform: scale(1);}
+      100% { transform: scale(1.08);}
+    }
+  </style>
+</head>
+<body>
+  <div class="success-hero">
+    <div class="success-icon">✔️</div>
+    <h2>Order Confirmed!</h2>
+    <p>
+      Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
+      Your order has been received and is being processed with the utmost care.<br><br>
+      You will receive an email confirmation shortly, where we’ll coordinate secure M-Pesa payment and tailor every detail to your needs.<br>
+      We deeply appreciate your trust in us and look forward to delivering an exceptional experience.
+    </p>
+    <a href="index.html" class="back-home">Back to Home</a>
+  </div>
+</body>
+</html>

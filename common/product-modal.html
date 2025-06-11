@@ -1,0 +1,45 @@
+<div class="modal" id="productModal">
+  <div class="modal-content">
+    <span class="close-modal" onclick="closeModal()">&times;</span>
+    <div class="modal-body">
+      <div class="modal-images">
+        <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" id="mainImage">
+        <div class="thumbnail-container">
+          <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" class="thumbnail">
+          <img src="assets/pishori-rice-closeup.png" alt="Rice Closeup" class="thumbnail">
+          <img src="assets/pishori-rice-cooked.png" alt="Cooked Rice" class="thumbnail">
+        </div>
+      </div>
+      <div class="modal-details">
+        <h2>Pishori Rice</h2>
+        <p class="price">KES <span id="modalPrice">0</span> / <span id="modalPackageLabel">-</span></p>
+        <p class="description">Premium quality Pishori rice directly from Mwea farms. Each grain is carefully selected for size and quality.</p>
+        
+        <div class="package-selector god-tier-select">
+          <label for="package">Package:</label>
+          <select id="package" onchange="updateModalPrice()">
+            <option value="">Select package</option>
+            <option value="1">1kg - KES 220</option>
+            <option value="2">2kg - KES 420</option>
+            <option value="5">5kg - KES 1050</option>
+            <option value="10">10kg - KES 2000</option>
+            <option value="20">20kg - KES 4000</option>
+          </select>
+        </div>
+        
+        <div class="quantity-selector">
+          <label for="quantity">Quantity:</label>
+          <input type="number" id="quantity" min="1" value="1" onchange="updateModalPrice()">
+        </div>
+        
+        <p class="total-price">Total: KES <span id="totalPrice">0</span></p>
+        
+        <button class="btn-primary" id="addToCartBtn" disabled>Add to Cart</button>
+        
+        <a href="contact.html#faqs" class="help-link">
+          <i class="fas fa-question-circle"></i> Need help with your order?
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
