@@ -13,11 +13,12 @@ const state = {
         "assets/pishori-rice-cooked.png"
       ],
       packages: {
-        "1": { label: "1kg", price: 220 },
-        "2": { label: "2kg", price: 420 },
-        "5": { label: "5kg", price: 1050 },
-        "10": { label: "10kg", price: 2000 },
-        "20": { label: "20kg", price: 4000 }
+      "1": { label: "1kg", price: 220 },
+      "2": { label: "2kg", price: 440 },
+      "5": { label: "5kg", price: 1100 },
+      "10": { label: "10kg", price: 2200 },
+      "20": { label: "20kg", price: 4400 },
+      "50": { label: "50kg", price: 11000 }
       }
     }
   }
@@ -119,11 +120,33 @@ document.addEventListener('DOMContentLoaded', function() {
   if (checkoutForm) {
     checkoutForm.addEventListener('submit', function(e) {
       e.preventDefault();
-      // Build order summary from the cart
+
+      // Calculate total kgs in cart
       let cart = [];
       try {
         cart = JSON.parse(localStorage.getItem('cart')) || [];
       } catch { cart = []; }
+      let totalKgs = 0;
+      cart.forEach(item => {
+        // Extract kg from name or id, or store package size in cart item
+        let match = /(\d+)\s?kg/i.exec(item.name);
+        let kgs = match ? parseInt(match[1], 10) : 0;
+        totalKgs += kgs * item.quantity;
+      });
+
+      // Minimum 5kg check
+      if (totalKgs < 5) {
+        showCheckoutError(e.target, `Minimum order is 5kg. Your current total is ${totalKgs}kg.`);
+        return;
+      }
+
+      // Rate limit: 7/hr/user
+      if (!canSubmitForm('checkoutForm', 7, 60 * 60 * 1000)) {
+        showCheckoutError(e.target, "Order rate limit reached. Please try again after 1 hour.");
+        return;
+      }
+
+      // Build order summary from the cart
       let summary = '';
       let total = 0;
       cart.forEach(item => {
@@ -473,8 +496,10 @@ function addToCart() {
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
   if (!pkg) return;
 
-  const price = state.products["pishori-rice"].packages[pkg].price;
-  const label = state.products["pishori-rice"].packages[pkg].label;
+  const kg = parseInt(pkg, 10);
+  const pricePerKg = 220;
+  const price = kg * pricePerKg;
+  const label = `${kg}kg`;
   const btn = document.getElementById('addToCartBtn');
 
   btn.disabled = true;
