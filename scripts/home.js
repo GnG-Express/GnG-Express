@@ -53,7 +53,7 @@ let notificationClosedByUser = false;
 let notificationStillExists = false;
 
 function fetchActiveContent() {
-  fetch('http://localhost:5000/api/content/active-all')
+  fetch('https://gng-express-backend.onrender.com/api/content/active-all')
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById('siteContentUpdate');

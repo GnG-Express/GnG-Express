@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return true;
   }
 
-  const BACKEND_URL = "http://localhost:5000"; // or your deployed backend URL
+  const BACKEND_URL = "https://gng-express-backend.onrender.com"; // or your deployed backend URL
 
   const contactForm = document.getElementById('contactForm');
   if (contactForm) {

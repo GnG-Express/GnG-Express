@@ -848,7 +848,7 @@ function canSubmitForm(formKey, limit = 10, windowMs = 60 * 60 * 1000) {
   return true;
 }
 
-const BACKEND_URL = "http://localhost:5000"; // Change to your deployed backend URL if needed
+const BACKEND_URL = "https://gng-express-backend.onrender.com"; // Change to your deployed backend URL if needed
 
 // Fallback packages data
 const fallbackPackages = [
