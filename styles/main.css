@@ -2230,3 +2230,29 @@ h2::after {
   box-shadow: 0 4px 16px rgba(244, 67, 54, 0.18);
 }
 
+.content-update-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.content-update {
+  transition: all 0.3s ease;
+  animation: fadeIn 0.5s ease-out;
+}
+
+.content-update.offer {
+  border-left: 4px solid var(--gold);
+  background-color: rgba(212, 175, 55, 0.1);
+}
+
+.content-update.notification {
+  border-left: 4px solid var(--primary);
+  background-color: rgba(21, 101, 192, 0.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

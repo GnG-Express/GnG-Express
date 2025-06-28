@@ -532,3 +532,40 @@
     transform: translateY(0);
   }
 }
+
+.content-update-container {
+  margin: 0 auto;
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+.site-offer {
+  background: #fffbe6;
+  border-left: 4px solid #d4af37;
+  padding: 1.2em 2em;
+  margin: 1em 0;
+  border-radius: 8px;
+  font-size: 1.1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.site-notification {
+  background: #e3f2fd;
+  border-left: 4px solid #1565c0;
+  padding: 1.2em 2em;
+  margin: 1em 0;
+  border-radius: 8px;
+  font-size: 1.1em;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.content-update strong {
+  color: inherit;
+  text-transform: uppercase;
+  font-family: 'Jost', sans-serif;
+  font-weight: 600;
+}
+
+.content-update span {
+  font-family: 'Jost', sans-serif;
+}

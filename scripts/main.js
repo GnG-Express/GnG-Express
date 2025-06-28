@@ -13,12 +13,12 @@ const state = {
         "assets/pishori-rice-cooked.png"
       ],
       packages: {
-      "1": { label: "1kg", price: 220 },
-      "2": { label: "2kg", price: 440 },
-      "5": { label: "5kg", price: 1100 },
-      "10": { label: "10kg", price: 2200 },
-      "20": { label: "20kg", price: 4400 },
-      "50": { label: "50kg", price: 11000 }
+        "1": { label: "1kg", price: 220 },
+        "2": { label: "2kg", price: 440 },
+        "5": { label: "5kg", price: 1100 },
+        "10": { label: "10kg", price: 2200 },
+        "20": { label: "20kg", price: 4400 },
+        "50": { label: "50kg", price: 11000 }
       }
     }
   }
@@ -36,7 +36,6 @@ const dom = {
 // ===== Utility: Input Sanitization =====
 function sanitizeInput(str) {
   if (typeof str !== 'string') return '';
-  // Remove script tags and encode HTML entities
   return str
     .replace(/<script.*?>.*?<\/script>/gi, '')
     .replace(/[<>&"'`]/g, c => ({
@@ -46,7 +45,6 @@ function sanitizeInput(str) {
 
 // ===== Utility: Basic Input Validation =====
 function isValidEmail(email) {
-  // Only allow common, real providers (best suited for Kenya)
   const allowedDomains = [
     'gmail.com', 'yahoo.com', 'outlook.com', 'icloud.com', 'hotmail.com',
     'protonmail.com', 'yahoo.co.uk', 'ymail.com', 'live.com', 'zoho.com', 'africaonline.co.ke'
@@ -56,14 +54,11 @@ function isValidEmail(email) {
   const domain = match[1].toLowerCase();
   return allowedDomains.includes(domain);
 }
+
 function isValidPhone(phone) {
-  // Accept Safaricom and Airtel numbers only
-  // Safaricom: 070, 071, 072, 074, 075, 076, 079, 0110-0119, 0100-0109
-  // Airtel: 073, 075, 0100-0109, 0110-0119
   const cleaned = phone.replace(/\s+/g, '');
   if (/^(\+254|0)7\d{8}$/.test(cleaned)) {
     const prefix = cleaned.replace(/^(\+254|0)/, '').substring(0, 3);
-    // Safaricom prefixes
     const safaricom = [
       '700','701','702','703','704','705','706','707','708','709',
       '710','711','712','713','714','715','716','717','718','719',
@@ -71,14 +66,12 @@ function isValidPhone(phone) {
       '790','791','792','793','794','795','796','797','798','799',
       '742'
     ];
-    // Airtel prefixes
     const airtel = [
       '730','731','732','733','734','735','736','737','738','739',
       '750','751','752','753','754','755','756','757','758','759'
     ];
     return safaricom.includes(prefix) || airtel.includes(prefix);
   }
-  // New 01xx and 011x prefixes (Airtel/Safaricom)
   if (/^(\+254|0)1\d{8}$/.test(cleaned)) {
     const prefix = cleaned.replace(/^(\+254|0)/, '').substring(0, 4);
     const allowed = [
@@ -90,6 +83,7 @@ function isValidPhone(phone) {
   }
   return false;
 }
+
 function isNonEmpty(str) {
   return typeof str === 'string' && str.trim().length > 0;
 }
@@ -106,104 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
   setupHeader();
   setupCart();
   setupCheckout();
-  setupProductModal();
+  // setupProductModal(); // <-- REMOVE THIS LINE
   setupServiceWorker();
   injectScrollToTopCTA();
 
   // Initialize cart from localStorage
   state.cart = getCart();
   updateCartUI();
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  const checkoutForm = document.getElementById('checkoutForm');
-  if (checkoutForm) {
-    checkoutForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      // Calculate total kgs in cart
-      let cart = [];
-      try {
-        cart = JSON.parse(localStorage.getItem('cart')) || [];
-      } catch { cart = []; }
-      let totalKgs = 0;
-      cart.forEach(item => {
-        // Extract kg from name or id, or store package size in cart item
-        let match = /(\d+)\s?kg/i.exec(item.name);
-        let kgs = match ? parseInt(match[1], 10) : 0;
-        totalKgs += kgs * item.quantity;
-      });
-
-      // Minimum 5kg check
-      if (totalKgs < 5) {
-        showCheckoutError(e.target, `Minimum order is 5kg. Your current total is ${totalKgs}kg.`);
-        return;
-      }
-
-      // Rate limit: 7/hr/user
-      if (!canSubmitForm('checkoutForm', 7, 60 * 60 * 1000)) {
-        showCheckoutError(e.target, "Order rate limit reached. Please try again after 1 hour.");
-        return;
-      }
-
-      // Build order summary from the cart
-      let summary = '';
-      let total = 0;
-      cart.forEach(item => {
-        summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
-        total += item.price * item.quantity;
-      });
-      document.getElementById('orderSummaryField').value = summary.trim();
-      document.getElementById('orderTotalField').value = `KSh ${total.toFixed(2)}`;
-      const form = e.target;
-      const data = new FormData(form);
-      // Send to FormSubmit
-      fetch('https://formsubmit.co/gng.express001@gmail.com', {
-        method: 'POST',
-        body: data,
-        mode: 'cors'
-      }).then(() => {
-        // Clear cart and form
-        localStorage.removeItem('cart');
-        if (typeof updateCartUI === 'function') updateCartUI();
-        form.reset();
-        // Show success message in modal (replace form)
-        const modalContent = form.closest('.checkout-content');
-        if (modalContent) {
-          modalContent.innerHTML = `
-            <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
-              <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">✔️</div>
-              <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Order Confirmed!</h2>
-              <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
-                Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
-                Your order has been received and is being processed.<br><br>
-                You will receive an email confirmation shortly.
-              </p>
-              <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
-            </div>
-          `;
-        }
-      }).catch(() => {
-        // Fallback: show same message
-        form.reset();
-        const modalContent = form.closest('.checkout-content');
-        if (modalContent) {
-          modalContent.innerHTML = `
-            <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
-              <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">✔️</div>
-              <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Order Confirmed!</h2>
-              <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
-                Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
-                Your order has been received and is being processed.<br><br>
-                You will receive an email confirmation shortly.
-              </p>
-              <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
-            </div>
-          `;
-        }
-      });
-    });
-  }
 });
 
 // ===== Cart Storage Functions =====
@@ -411,35 +314,34 @@ function setupCart() {
   });
 }
 
+// Store fetched packages globally for modal use
+window.dynamicPackages = [];
+
 // ===== Product Modal Functionality =====
-function setupProductModal() {
-  // Modal is always present in DOM
-  const modal = document.getElementById('productModal');
-  if (!modal) return;
+async function setupProductModal() {
+  const select = document.getElementById('package');
+  if (select) {
+    while (select.options.length > 1) select.remove(1);
 
-  // Thumbnail click handler
-  modal.addEventListener('click', (e) => {
-    if (e.target.classList.contains('thumbnail')) {
-      document.getElementById('mainImage').src = e.target.src;
-      document.querySelectorAll('.thumbnail').forEach(t => t.classList.remove('active'));
-      e.target.classList.add('active');
-    }
-  });
-
-  // Package/quantity change handlers
-  document.getElementById('package')?.addEventListener('change', updateModalPrice);
-  document.getElementById('quantity')?.addEventListener('change', updateModalPrice);
-
-  // Add to cart button handler
-  document.getElementById('addToCartBtn')?.addEventListener('click', addToCart);
+    const pkgs = await fetchPackagesForModal();
+    window.dynamicPackages = pkgs; // Store for later use
+    pkgs.forEach(pkg => {
+      if (pkg.Stock !== "Out of Stock") {
+        const opt = document.createElement('option');
+        opt.value = pkg.Package.replace('kg', '').trim();
+        opt.textContent = `${pkg.Package} - KES ${pkg.Price}`;
+        select.appendChild(opt);
+      }
+    });
+  }
 }
 
 function updateModalPrice() {
-  const pkg = document.getElementById('package').value;
+  const pkgValue = document.getElementById('package').value;
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
   const btn = document.getElementById('addToCartBtn');
 
-  if (!pkg) {
+  if (!pkgValue) {
     document.getElementById('modalPrice').textContent = '0';
     document.getElementById('modalPackageLabel').textContent = '-';
     document.getElementById('totalPrice').textContent = '0';
@@ -447,8 +349,20 @@ function updateModalPrice() {
     return;
   }
 
-  const price = state.products["pishori-rice"].packages[pkg].price;
-  const label = state.products["pishori-rice"].packages[pkg].label;
+  // Find the selected package from dynamicPackages
+  const pkgObj = window.dynamicPackages.find(
+    p => p.Package.replace('kg', '').trim() === pkgValue
+  );
+  if (!pkgObj) {
+    document.getElementById('modalPrice').textContent = '0';
+    document.getElementById('modalPackageLabel').textContent = '-';
+    document.getElementById('totalPrice').textContent = '0';
+    btn.disabled = true;
+    return;
+  }
+
+  const price = Number(pkgObj.Price);
+  const label = pkgObj.Package;
 
   document.getElementById('modalPrice').textContent = price;
   document.getElementById('modalPackageLabel').textContent = label;
@@ -459,20 +373,22 @@ function updateModalPrice() {
 function openProductModal() {
   if (!dom.productModal) return;
 
-  dom.productModal.style.display = 'block';
-  document.body.style.overflow = 'hidden';
-  document.getElementById('quantity').value = 1;
-  document.getElementById('mainImage').src = state.products["pishori-rice"].images[0];
-  updateModalPrice();
+  // Always fetch and populate packages when opening the modal
+  setupProductModal().then(() => {
+    dom.productModal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+    document.getElementById('quantity').value = 1;
+    document.getElementById('mainImage').src = state.products["pishori-rice"].images[0];
+    updateModalPrice();
 
-  setTimeout(() => {
-    dom.productModal.classList.add('show');
-  }, 10);
+    setTimeout(() => {
+      dom.productModal.classList.add('show');
+    }, 10);
 
-  // Set first thumbnail as active
-  const thumbnails = document.querySelectorAll('.thumbnail');
-  thumbnails.forEach(t => t.classList.remove('active'));
-  if (thumbnails.length > 0) thumbnails[0].classList.add('active');
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    thumbnails.forEach(t => t.classList.remove('active'));
+    if (thumbnails.length > 0) thumbnails[0].classList.add('active');
+  });
 }
 
 function closeModal() {
@@ -483,7 +399,6 @@ function closeModal() {
     dom.productModal.style.display = 'none';
     document.body.style.overflow = '';
 
-    // Reset zoom if active
     const mainImage = document.getElementById('mainImage');
     if (mainImage?.classList.contains('zoomed')) {
       mainImage.classList.remove('zoomed');
@@ -492,28 +407,30 @@ function closeModal() {
 }
 
 function addToCart() {
-  const pkg = document.getElementById('package').value;
+  const pkgValue = document.getElementById('package').value;
   const quantity = parseInt(document.getElementById('quantity').value) || 1;
-  if (!pkg) return;
+  if (!pkgValue) return;
 
-  const kg = parseInt(pkg, 10);
-  const pricePerKg = 220;
-  const price = kg * pricePerKg;
-  const label = `${kg}kg`;
+  // Find the selected package from dynamicPackages
+  const pkgObj = window.dynamicPackages.find(
+    p => p.Package.replace('kg', '').trim() === pkgValue
+  );
+  if (!pkgObj) return;
+
+  const price = Number(pkgObj.Price);
+  const label = pkgObj.Package;
   const btn = document.getElementById('addToCartBtn');
 
   btn.disabled = true;
   btn.innerHTML = 'Adding... <span class="loading-dots"></span>';
 
-  // Create cart item
   const cartItem = {
-    id: `pishori-${pkg}kg`,
+    id: `pishori-${pkgValue}kg`,
     name: `Pishori Rice (${label})`,
     price: price,
     quantity: quantity
   };
 
-  // Add to cart and update UI
   let cart = getCart();
   let found = cart.find(item => item.id === cartItem.id);
   if (found) {
@@ -524,10 +441,8 @@ function addToCart() {
   setCart(cart);
   updateCartUI();
 
-  // Open cart panel after adding
   window.app.openCart();
 
-  // Update button state
   btn.innerHTML = '✓ Added!';
   setTimeout(() => {
     closeModal();
@@ -593,12 +508,6 @@ function setupCheckout() {
     }
   });
 
-  // --- REMOVE this block to prevent duplicate event listeners ---
-  // document.querySelector('.checkout-form')?.addEventListener('submit', function(e) {
-  //   e.preventDefault();
-  //   submitWhatsAppOrder(e);
-  // });
-
   // Add floating label effect
   document.querySelectorAll('.form-group').forEach(group => {
     const input = group.querySelector('input, select, textarea');
@@ -626,7 +535,6 @@ function renderCheckoutItems() {
 }
 
 function showFieldError(form, fieldSelector, message) {
-  // Remove any previous error message for this field
   const field = form.querySelector(fieldSelector);
   if (!field) return;
   let errorMsg = field.parentNode.querySelector('.field-error-message');
@@ -647,9 +555,7 @@ function showFieldError(form, fieldSelector, message) {
   field.parentNode.appendChild(errorMsg);
 }
 
-// Helper to show error message inside the checkout form
 function showCheckoutError(form, message) {
-  // Remove any previous error message
   let errorMsg = form.querySelector('.checkout-error-message');
   if (errorMsg) errorMsg.remove();
 
@@ -665,7 +571,6 @@ function showCheckoutError(form, message) {
   errorMsg.style.fontWeight = '500';
   errorMsg.textContent = message;
 
-  // Insert right after the "place order" button
   const btn = form.querySelector('.place-order-btn');
   if (btn && btn.parentNode) {
     btn.parentNode.insertBefore(errorMsg, btn.nextSibling);
@@ -677,23 +582,18 @@ function showCheckoutError(form, message) {
 function openCheckout() {
   if (!dom.cartPanel || !dom.cartOverlay || !dom.checkoutModal) return;
 
-  // Close cart first
   dom.cartPanel.classList.remove('active');
   dom.cartOverlay.classList.remove('active');
 
-  // Render checkout items
   renderCheckoutItems();
 
-  // Open checkout modal
   dom.checkoutModal.classList.add('active');
   document.body.style.overflow = 'hidden';
 
-  // Add animation
   setTimeout(() => {
     document.querySelector('.checkout-content').classList.add('animate-in');
   }, 10);
 
-  // Focus on first input field
   setTimeout(() => {
     const firstInput = document.querySelector('#checkout-name');
     if (firstInput) firstInput.focus();
@@ -703,14 +603,11 @@ function openCheckout() {
 function closeCheckout() {
   if (!dom.checkoutModal) return;
 
-  // Remove animation class first
   document.querySelector('.checkout-content')?.classList.remove('animate-in');
 
-  // Close modal
   dom.checkoutModal.classList.remove('active');
   document.body.style.overflow = '';
 
-  // Clear form after animation completes
   setTimeout(() => {
     const form = document.querySelector('.checkout-form');
     if (form) form.reset();
@@ -727,7 +624,6 @@ function showNotification(message, type = 'info') {
   `;
   document.body.appendChild(notification);
 
-  // Auto-remove any existing notifications
   const existingNotifications = document.querySelectorAll('.notification');
   if (existingNotifications.length > 3) {
     existingNotifications[0].remove();
@@ -873,7 +769,6 @@ function injectScrollToTopCTA() {
 // ===== Exported Functions =====
 window.app = {
   addToCart: function(product) {
-    // Defensive: sanitize product input
     const safeProduct = {
       id: sanitizeInput(product.id),
       name: sanitizeInput(product.name),
@@ -900,7 +795,6 @@ window.app = {
     dom.cartPanel.classList.add('active');
     updateCartUI();
 
-    // Add subtle animation to cart items
     const cartItems = document.querySelectorAll('.cart-item');
     cartItems.forEach((item, index) => {
       item.style.animationDelay = `${index * 0.05}s`;
@@ -941,17 +835,190 @@ window.scrollToProducts = function() {
   if (section) section.scrollIntoView({ behavior: 'smooth' });
 };
 
-// Add at the top or near your utilities
 function canSubmitForm(formKey, limit = 10, windowMs = 60 * 60 * 1000) {
   const now = Date.now();
   let history = [];
   try {
     history = JSON.parse(localStorage.getItem(formKey)) || [];
   } catch { history = []; }
-  // Remove timestamps older than windowMs
   history = history.filter(ts => now - ts < windowMs);
   if (history.length >= limit) return false;
   history.push(now);
   localStorage.setItem(formKey, JSON.stringify(history));
   return true;
 }
+
+const BACKEND_URL = "http://localhost:5000"; // Change to your deployed backend URL if needed
+
+// Fallback packages data
+const fallbackPackages = [
+  { Package: "1kg", Price: "220", Stock: "In Stock" },
+  { Package: "2kg", Price: "440", Stock: "In Stock" },
+  { Package: "5kg", Price: "1100", Stock: "In Stock" },
+  { Package: "10kg", Price: "2200", Stock: "In Stock" },
+  { Package: "20kg", Price: "4400", Stock: "In Stock" },
+  { Package: "50kg", Price: "11000", Stock: "In Stock" }
+];
+
+// Fetch packages from Google Sheets, fallback to hardcoded if needed
+async function fetchPackagesForModal() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/api/packages`);
+    const data = await res.json();
+    if (Array.isArray(data.packages)) {
+      // Only show in-stock
+      return data.packages.filter(pkg => pkg.stock === "In Stock")
+        .map(pkg => ({
+          Package: `${pkg.size}kg`,
+          Price: pkg.price,
+          Stock: pkg.stock
+        }));
+    }
+    return [];
+  } catch (e) {
+    return [];
+  }
+}
+
+// Checkout form submission handler
+document.addEventListener('DOMContentLoaded', function() {
+  const checkoutForm = document.getElementById('checkoutForm');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      // Validate form
+      if (!checkoutForm.elements['name'].value.trim()) {
+        showFieldError(checkoutForm, '#checkout-name', 'Please enter your name');
+        return;
+      }
+      
+      if (!checkoutForm.elements['phone'].value.trim() || !isValidPhone(checkoutForm.elements['phone'].value)) {
+        showFieldError(checkoutForm, '#checkout-phone', 'Please enter a valid phone number');
+        return;
+      }
+      
+      if (!checkoutForm.elements['email'].value.trim() || !isValidEmail(checkoutForm.elements['email'].value)) {
+        showFieldError(checkoutForm, '#checkout-email', 'Please enter a valid email');
+        return;
+      }
+
+      // Calculate total kgs in cart
+      let cart = [];
+      try {
+        cart = JSON.parse(localStorage.getItem('cart')) || [];
+      } catch { cart = []; }
+      let totalKgs = 0;
+      cart.forEach(item => {
+        let match = /(\d+)\s?kg/i.exec(item.name);
+        let kgs = match ? parseInt(match[1], 10) : 0;
+        totalKgs += kgs * item.quantity;
+      });
+
+      // Minimum 5kg check
+      if (totalKgs < 5) {
+        showCheckoutError(e.target, `Minimum order is 5kg. Your current total is ${totalKgs}kg.`);
+        return;
+      }
+
+      // Rate limit: 7/hr/user
+      if (!canSubmitForm('checkoutForm', 7, 60 * 60 * 1000)) {
+        showCheckoutError(e.target, "Order rate limit reached. Please try again after 1 hour.");
+        return;
+      }
+
+      // Build order summary from the cart
+      let summary = '';
+      let total = 0;
+      cart.forEach(item => {
+        summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
+        total += item.price * item.quantity;
+      });
+
+      // Gather form data
+      const form = e.target;
+      const name = form.elements['name'].value;
+      const phone = form.elements['phone'].value;
+      const email = form.elements['email'].value;
+      const location = form.elements['location']?.value || '';
+      const note = form.elements['note']?.value || '';
+
+      // Build orderData object
+      const orderData = {
+        type: "addOrder",
+        name,
+        phone,
+        email,
+        location,
+        note,
+        orderSummary: summary.trim(),
+        orderTotal: total // <-- send as a number, not a string!
+      };
+
+      // Show loading state
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="loading-dots">Processing</span>';
+
+      // Send to Google Apps Script as JSON and await response
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/orders`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(orderData)
+        });
+        const result = await res.json();
+
+        // Only show success if orderId is present
+        if (result && result.order && result.order.orderId) {
+          // Clear cart and form
+          localStorage.removeItem('cart');
+          if (typeof updateCartUI === 'function') updateCartUI();
+          checkoutForm.reset();
+
+          // Show success message with Order ID
+          const modalContent = checkoutForm.closest('.checkout-content');
+          if (modalContent) {
+            modalContent.innerHTML = `
+              <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
+                <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">✔️</div>
+                <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Order Confirmed!</h2>
+                <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
+                  Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
+                  Your order has been received and is being processed.<br><br>
+                  <b>Your Order Number:</b> <span style="color:var(--primary);font-weight:700;">${result.order.orderId}</span><br>
+                  You will receive an email confirmation shortly.
+                </p>
+                <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
+              </div>
+            `;
+          }
+        } else {
+          showCheckoutError(checkoutForm, "Order failed. Please try again.");
+        }
+      } catch (err) {
+        showCheckoutError(checkoutForm, "Order failed. Please check your connection and try again.");
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      }
+    });
+  }
+
+  // Ensure product modal Add to Cart button works
+  const addToCartBtn = document.getElementById('addToCartBtn');
+  if (addToCartBtn) {
+    addToCartBtn.addEventListener('click', addToCart);
+  }
+
+  // Fix modal open from product page (if you have a button/link)
+  document.querySelectorAll('[data-open-product-modal]').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.preventDefault();
+      openProductModal();
+    });
+  });
+
+ });
+

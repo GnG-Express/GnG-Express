@@ -53,6 +53,8 @@
     </div>
   </header>
 
+  <div id="siteContentUpdate" class="content-update-container"></div>
+
   <main>
   <!-- Hero Section -->
   <section class="hero">
@@ -202,12 +204,7 @@
             <label for="package">Package:</label>
             <select id="package" onchange="updateModalPrice()">
               <option value="">Select package</option>
-              <option value="1">1kg - KES 220</option>
-              <option value="2">2kg - KES 440</option>
-              <option value="5">5kg - KES 1100</option>
-              <option value="10">10kg - KES 2200</option>
-              <option value="20">20kg - KES 4400</option>
-              <option value="50">50kg - KES 11000</option>
+              <!-- All other options removed; will be populated by JS -->
             </select>
           </div>
           <div class="quantity-selector">
@@ -277,6 +274,15 @@
   <script src="scripts/main.js"></script>
   <script src="scripts/home.js"></script>
 
+<style>
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(40px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.floating-notification {
+  transition: opacity 0.3s, transform 0.3s;
+}
+</style>
 
 </body>
 </html>
