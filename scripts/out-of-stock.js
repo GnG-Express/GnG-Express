@@ -1,4 +1,4 @@
-const BACKEND_URL = "http://localhost:5000/api";
+const BACKEND_URL = "https://gng-express-backend.onrender.com/api";
 
 let currentUser = null;
 let orders = [];
