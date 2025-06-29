@@ -2090,6 +2090,7 @@ h2::after {
 .guide-hero h1,
 .about-hero h1,
 .contact-hero h1,
+.hero-content h1,
 .terms-hero h1 {
   font-family: 'Playfair Display', serif;
   font-size: 4rem;
