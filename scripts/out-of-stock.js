@@ -781,6 +781,14 @@ function viewOrder(orderId) {
     return;
   }
   currentOrderId = order._id;
+  // Render packages as editable fields
+  const packagesHtml = (order.packages || []).map((pkg, idx) => `
+    <div>
+      <input type="number" value="${pkg.size}" min="1" id="orderPkgSize${idx}" style="width:60px;"> kg ×
+      <input type="number" value="${pkg.quantity}" min="1" id="orderPkgQty${idx}" style="width:60px;">
+      @ KSh <input type="number" value="${pkg.price}" min="0" id="orderPkgPrice${idx}" style="width:80px;">
+    </div>
+  `).join('');
   document.getElementById('orderModalBody').innerHTML = `
     <table class="admin-table">
       <tr><th>Order ID</th><td>${order.orderId || ''}</td></tr>
@@ -798,6 +806,11 @@ function viewOrder(orderId) {
           </select>
         </td>
       </tr>
+      <tr><th>Packages</th>
+        <td>
+          ${packagesHtml || '<em>No packages</em>'}
+        </td>
+      </tr>
       <tr><th>Date</th><td>${formatDate(order.createdAt || order.timestamp)}</td></tr>
     </table>
   `;
@@ -811,6 +824,10 @@ function viewInquiry(inquiryId) {
     return;
   }
   currentInquiryId = inquiry._id;
+  // Show all comments, most recent first
+  const commentsHtml = (inquiry.comments || []).slice().reverse().map(c =>
+    `<div class="inquiry-comment"><b>${formatDate(c.date)}:</b> ${c.text}</div>`
+  ).join('');
   document.getElementById('inquiryModalBody').innerHTML = `
     <table class="admin-table">
       <tr><th>Inquiry ID</th><td>${inquiry.inquiryId || ''}</td></tr>
@@ -830,7 +847,8 @@ function viewInquiry(inquiryId) {
       </tr>
       <tr><th>Comments</th>
         <td>
-          <textarea id="modalInquiryComments" rows="2" style="width:98%;">${inquiry.comments || ''}</textarea>
+          <div id="inquiryCommentsList">${commentsHtml}</div>
+          <textarea id="modalInquiryComments" rows="2" style="width:98%;" placeholder="Add a comment..."></textarea>
         </td>
       </tr>
       <tr><th>Date</th><td>${formatDate(inquiry.createdAt || inquiry.timestamp)}</td></tr>
@@ -846,11 +864,21 @@ document.getElementById('updateOrderBtn').addEventListener('click', async functi
   const phone = document.getElementById('modalOrderPhone').value;
   const orderTotal = parseFloat(document.getElementById('modalOrderTotal').value) || 0;
   const status = document.getElementById('modalOrderStatus').value;
+  // Gather packages
+  const order = orders.find(o => o._id === currentOrderId);
+  let packages = [];
+  if (order && order.packages) {
+    packages = order.packages.map((pkg, idx) => ({
+      size: parseInt(document.getElementById(`orderPkgSize${idx}`).value, 10),
+      quantity: parseInt(document.getElementById(`orderPkgQty${idx}`).value, 10),
+      price: parseFloat(document.getElementById(`orderPkgPrice${idx}`).value)
+    }));
+  }
   try {
     await fetch(`${BACKEND_URL}/orders/${currentOrderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, orderTotal, status })
+      body: JSON.stringify({ name, email, phone, orderTotal, status, packages })
     });
     showNotification('Order updated!', 'success');
     closeOrderModal();
