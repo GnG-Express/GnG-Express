@@ -266,7 +266,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const totals = data.map(item => item.total);
 
     const ctx = document.getElementById('revenueChart').getContext('2d');
-    if (window.revenueChart) window.revenueChart.destroy();
+    if (window.revenueChart && typeof window.revenueChart.destroy === 'function') {
+      window.revenueChart.destroy();
+    }
     window.revenueChart = new Chart(ctx, {
       type: 'line',
       data: {
