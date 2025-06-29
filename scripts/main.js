@@ -639,7 +639,8 @@ function showNotification(message, type = 'info') {
 function setupServiceWorker() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => {
+      // Use relative path for GitHub Pages
+      navigator.serviceWorker.register('./sw.js').catch(err => {
         console.log('ServiceWorker registration failed: ', err);
       });
     });
