@@ -2101,7 +2101,7 @@ h2::after {
   background-clip: text;
   color: transparent;
   animation: textShine 3s ease-in-out infinite alternate;
-  margin-top: 20px;
+  margin-top: 30px;
 }
 
 @keyframes textShine {
