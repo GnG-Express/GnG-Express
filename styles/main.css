@@ -2101,6 +2101,7 @@ h2::after {
   background-clip: text;
   color: transparent;
   animation: textShine 3s ease-in-out infinite alternate;
+  margin-top: 20px;
 }
 
 @keyframes textShine {
@@ -2264,16 +2265,21 @@ h2::after {
 .contact-hero,
 .terms-hero {
   margin-top: var(--header-height);
+    /* Ensure hero content is always within the background image */
+  position: relative;
+  z-index: 1;
 }
 
 /* Responsive: Adjust for smaller screens */
+@media (max-width: 1200px) {
+  :root { --header-height: 5px; }
+}
 @media (max-width: 900px) {
-  :root {
-    --header-height: 5px;
-  }
+  :root { --header-height: 5px; }
 }
 @media (max-width: 600px) {
-  :root {
-    --header-height: 5px;
-  }
+  :root { --header-height: 5px; }
+}
+@media (max-width: 400px) {
+  :root { --header-height: 5px; }
 }
