@@ -266,10 +266,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const totals = data.map(item => item.total);
 
     const ctx = document.getElementById('revenueChart').getContext('2d');
-    if (window.revenueChart && typeof window.revenueChart.destroy === 'function') {
-      window.revenueChart.destroy();
+    if (revenueChart && typeof revenueChart.destroy === 'function') {
+      revenueChart.destroy();
     }
-    window.revenueChart = new Chart(ctx, {
+    revenueChart = new Chart(ctx, {
       type: 'line',
       data: {
         labels,
@@ -297,7 +297,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
       }
     });
-    setTimeout(() => window.revenueChart.resize(), 100);
+    setTimeout(() => revenueChart.resize(), 100);
   }
   loadRevenueGraph();
 });
