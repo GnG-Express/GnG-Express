@@ -266,9 +266,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const totals = data.map(item => item.total);
 
     const ctx = document.getElementById('revenueChart').getContext('2d');
-    if (revenueChart && typeof revenueChart.destroy === 'function') {
+
+    // Only destroy if revenueChart is a Chart instance
+    if (revenueChart && typeof revenueChart.destroy === 'function' && revenueChart instanceof Chart) {
       revenueChart.destroy();
     }
+
     revenueChart = new Chart(ctx, {
       type: 'line',
       data: {

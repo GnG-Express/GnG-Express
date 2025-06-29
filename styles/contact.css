@@ -12,7 +12,7 @@
   position: relative;
   background-size: cover;
   background-position: center;
-  padding-top: 130px;
+  /* padding-top: 130px; */
 }
 
 .contact-hero::before {

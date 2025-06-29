@@ -13,7 +13,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  padding-top: 130px; /* Add space for header (adjust as needed) */
+  /* padding-top: 130px;  <-- REMOVE or COMMENT OUT this line */
 }
 
 .hero::before {

@@ -12,6 +12,7 @@
   --text-light: #3e2723;     /* Secondary text */
   --highlight: #c6ff00;      /* Neon highlight */
   --white: #fff;
+  --header-height: 5px;    /* Default for desktop */
 
   /* Shadows and glows */
   --glow: 0 0 30px rgba(198, 255, 0, 0.18);
@@ -2255,4 +2256,24 @@ h2::after {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.hero,
+.guide-hero,
+.about-hero,
+.contact-hero,
+.terms-hero {
+  margin-top: var(--header-height);
+}
+
+/* Responsive: Adjust for smaller screens */
+@media (max-width: 900px) {
+  :root {
+    --header-height: 5px;
+  }
+}
+@media (max-width: 600px) {
+  :root {
+    --header-height: 5px;
+  }
 }

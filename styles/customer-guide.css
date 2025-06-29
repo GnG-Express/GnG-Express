@@ -23,7 +23,6 @@
   text-align: center;
   position: relative;
   background-attachment: fixed;
-  padding-top: 130px;
   padding-bottom: 60px;
   padding-left: 2rem;
   padding-right: 2rem;
@@ -992,7 +991,6 @@ h2::after {
 @media (max-width: 992px) {
   .guide-hero {
     min-height: 80vh;
-    padding-top: 110px;
   }
   .guide-hero h1 {
     font-size: 3rem;
@@ -1008,7 +1006,6 @@ h2::after {
 @media (max-width: 768px) {
   .guide-hero {
     min-height: 70vh;
-    padding-top: 90px;
   }
   .guide-hero h1 {
     font-size: 2.5rem;
@@ -1024,7 +1021,6 @@ h2::after {
 @media (max-width: 576px) {
   .guide-hero {
     min-height: 60vh;
-    padding-top: 70px;
   }
   .guide-hero h1 {
     font-size: 2rem;
