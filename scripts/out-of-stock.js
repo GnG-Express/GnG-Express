@@ -209,6 +209,66 @@ document.addEventListener('DOMContentLoaded', function() {
       expiryGroup.style.display = 'none';
     }
   });
+
+  // Global search
+  const searchInput = document.getElementById('global-search');
+  const searchDropdown = document.getElementById('search-dropdown');
+
+  searchInput.addEventListener('input', async (e) => {
+    const q = e.target.value;
+    if (!q) {
+      searchDropdown.innerHTML = '';
+      return;
+    }
+    const res = await fetch(`${BACKEND_URL}/search?q=${encodeURIComponent(q)}`);
+    const data = await res.json();
+    let html = '';
+    data.orders.forEach(order => {
+      html += `<div class="search-result" data-type="order" data-id="${order._id}">Order: ${order.orderId}</div>`;
+    });
+    data.inquiries.forEach(inquiry => {
+      html += `<div class="search-result" data-type="inquiry" data-id="${inquiry._id}">Inquiry: ${inquiry.inquiryId}</div>`;
+    });
+    searchDropdown.innerHTML = html;
+  });
+
+  // Handle click
+  searchDropdown.addEventListener('click', (e) => {
+    if (e.target.classList.contains('search-result')) {
+      const type = e.target.dataset.type;
+      const id = e.target.dataset.id;
+      if (type === 'order') {
+        openOrderDetails(id);
+      } else {
+        openInquiryDetails(id);
+      }
+      searchDropdown.innerHTML = '';
+      searchInput.value = '';
+    }
+  });
+
+  // Revenue graph
+  async function loadRevenueGraph() {
+    const res = await fetch(`${BACKEND_URL}/orders/revenue-overview`);
+    const data = await res.json();
+    const labels = data.map(item => item._id);
+    const totals = data.map(item => item.total);
+
+    const ctx = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels,
+        datasets: [{
+          label: 'Revenue',
+          data: totals,
+          borderColor: 'green',
+          fill: false
+        }]
+      }
+    });
+  }
+  loadRevenueGraph();
 });
 
 // ===== Helper Functions =====
@@ -559,128 +619,131 @@ function openEditPackageModal(idx) {
 }
 
 // --- Search Functions (Backend) ---
-function searchOrders() {
-  const query = document.getElementById('orderSearch').value.trim().toLowerCase();
+async function searchOrders() {
+  const query = document.getElementById('orderSearch').value.trim();
   if (!query) {
-    renderOrdersTable(orders);
+    fetchOrders();
     return;
   }
-  const filtered = orders.filter(order =>
-    (order.orderId || '').toLowerCase().includes(query) ||
-    (order.name || '').toLowerCase().includes(query) ||
-    (order.email || '').toLowerCase().includes(query)
-  );
-  renderOrdersTable(filtered);
+  try {
+    const res = await fetch(`${BACKEND_URL}/orders?search=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    renderOrdersTable(data.orders || []);
+  } catch (error) {
+    showNotification('Failed to search orders.', 'error');
+  }
 }
 
-function searchInquiries() {
-  const query = document.getElementById('inquirySearch').value.trim().toLowerCase();
+async function searchInquiries() {
+  const query = document.getElementById('inquirySearch').value.trim();
   if (!query) {
-    renderInquiriesTable(inquiries);
+    fetchInquiries();
     return;
   }
-  const filtered = inquiries.filter(inquiry =>
-    (inquiry.inquiryId || '').toLowerCase().includes(query) ||
-    (inquiry.name || '').toLowerCase().includes(query) ||
-    (inquiry.email || '').toLowerCase().includes(query) ||
-    (inquiry.subject || '').toLowerCase().includes(query)
-  );
-  renderInquiriesTable(filtered);
-}
-
-function globalSearch() {
-  const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
-  const container = document.getElementById('globalSearchResults');
-  if (!query) {
-    container.style.display = 'none';
-    return;
-  }
-  container.style.display = 'block';
-  container.innerHTML = '<h3>Search Results</h3>';
-
-  // Search orders
-  const filteredOrders = orders.filter(order =>
-    (order.orderId || '').toLowerCase().includes(query) ||
-    (order.name || '').toLowerCase().includes(query) ||
-    (order.email || '').toLowerCase().includes(query)
-  );
-  if (filteredOrders.length > 0) {
-    const ordersDiv = document.createElement('div');
-    ordersDiv.innerHTML = '<h4>Orders</h4>';
-    const ordersTable = document.createElement('table');
-    ordersTable.className = 'admin-table';
-    ordersTable.innerHTML = `
-      <thead>
-        <tr>
-          <th>Order ID</th>
-          <th>Customer</th>
-          <th>Date</th>
-          <th>Amount</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filteredOrders.map(order => `
-          <tr>
-            <td>${order.orderId || 'N/A'}</td>
-            <td>${order.name || 'N/A'}</td>
-            <td>${formatDate(order.createdAt || order.timestamp)}</td>
-            <td>${order.orderTotal || 'KSh 0'}</td>
-            <td><span class="status-badge status-${(order.status || 'pending').toLowerCase()}">
-              ${(order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1)}
-            </span></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-    ordersDiv.appendChild(ordersTable);
-    container.appendChild(ordersDiv);
-  }
-
-  // Search inquiries
-  const filteredInquiries = inquiries.filter(inquiry =>
-    (inquiry.inquiryId || '').toLowerCase().includes(query) ||
-    (inquiry.name || '').toLowerCase().includes(query) ||
-    (inquiry.email || '').toLowerCase().includes(query) ||
-    (inquiry.subject || '').toLowerCase().includes(query)
-  );
-  if (filteredInquiries.length > 0) {
-    const inquiriesDiv = document.createElement('div');
-    inquiriesDiv.innerHTML = '<h4>Inquiries</h4>';
-    const inquiriesTable = document.createElement('table');
-    inquiriesTable.className = 'admin-table';
-    inquiriesTable.innerHTML = `
-      <thead>
-        <tr>
-          <th>Inquiry ID</th>
-          <th>Name</th>
-          <th>Subject</th>
-          <th>Date</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${filteredInquiries.map(inquiry => `
-          <tr>
-            <td>${inquiry.inquiryId || 'N/A'}</td>
-            <td>${inquiry.name || 'N/A'}</td>
-            <td>${inquiry.subject || 'N/A'}</td>
-            <td>${formatDate(inquiry.createdAt || inquiry.timestamp)}</td>
-            <td><span class="status-badge status-${(inquiry.status || 'new').toLowerCase()}">
-              ${(inquiry.status || 'new').charAt(0).toUpperCase() + (inquiry.status || 'new').slice(1)}
-            </span></td>
-          </tr>
-        `).join('')}
-      </tbody>
-    `;
-    inquiriesDiv.appendChild(inquiriesTable);
-    container.appendChild(inquiriesDiv);
-  }
-
-  if (filteredOrders.length === 0 && filteredInquiries.length === 0) {
-    container.innerHTML += '<p>No results found for your search.</p>';
+  try {
+    const res = await fetch(`${BACKEND_URL}/inquiries?search=${encodeURIComponent(query)}`);
+    const data = await res.json();
+    renderInquiriesTable(data.inquiries || []);
+  } catch (error) {
+    showNotification('Failed to search inquiries.', 'error');
   }
 }
+
+// Remove or comment out the old globalSearch() and globalSearchResults logic:
+
+// function globalSearch() {
+//   const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
+//   const container = document.getElementById('globalSearchResults');
+//   if (!query) {
+//     container.style.display = 'none';
+//     return;
+//   }
+//   container.style.display = 'block';
+//   container.innerHTML = '<h3>Search Results</h3>';
+
+//   // Search orders
+//   const filteredOrders = orders.filter(order =>
+//     (order.orderId || '').toLowerCase().includes(query) ||
+//     (order.name || '').toLowerCase().includes(query) ||
+//     (order.email || '').toLowerCase().includes(query)
+//   );
+//   if (filteredOrders.length > 0) {
+//     const ordersDiv = document.createElement('div');
+//     ordersDiv.innerHTML = '<h4>Orders</h4>';
+//     const ordersTable = document.createElement('table');
+//     ordersTable.className = 'admin-table';
+//     ordersTable.innerHTML = `
+//       <thead>
+//         <tr>
+//           <th>Order ID</th>
+//           <th>Customer</th>
+//           <th>Date</th>
+//           <th>Amount</th>
+//           <th>Status</th>
+//         </tr>
+//       </thead>
+//       <tbody>
+//         ${filteredOrders.map(order => `
+//           <tr>
+//             <td>${order.orderId || 'N/A'}</td>
+//             <td>${order.name || 'N/A'}</td>
+//             <td>${formatDate(order.createdAt || order.timestamp)}</td>
+//             <td>${order.orderTotal || 'KSh 0'}</td>
+//             <td><span class="status-badge status-${(order.status || 'pending').toLowerCase()}">
+//               ${(order.status || 'pending').charAt(0).toUpperCase() + (order.status || 'pending').slice(1)}
+//             </span></td>
+//           </tr>
+//         `).join('')}
+//       </tbody>
+//     `;
+//     ordersDiv.appendChild(ordersTable);
+//     container.appendChild(ordersDiv);
+//   }
+
+//   // Search inquiries
+//   const filteredInquiries = inquiries.filter(inquiry =>
+//     (inquiry.inquiryId || '').toLowerCase().includes(query) ||
+//     (inquiry.name || '').toLowerCase().includes(query) ||
+//     (inquiry.email || '').toLowerCase().includes(query) ||
+//     (inquiry.subject || '').toLowerCase().includes(query)
+//   );
+//   if (filteredInquiries.length > 0) {
+//     const inquiriesDiv = document.createElement('div');
+//     inquiriesDiv.innerHTML = '<h4>Inquiries</h4>';
+//     const inquiriesTable = document.createElement('table');
+//     inquiriesTable.className = 'admin-table';
+//     inquiriesTable.innerHTML = `
+//       <thead>
+//         <tr>
+//           <th>Inquiry ID</th>
+//           <th>Name</th>
+//           <th>Subject</th>
+//           <th>Date</th>
+//           <th>Status</th>
+//         </tr>
+//       </thead>
+//       <tbody>
+//         ${filteredInquiries.map(inquiry => `
+//           <tr>
+//             <td>${inquiry.inquiryId || 'N/A'}</td>
+//             <td>${inquiry.name || 'N/A'}</td>
+//             <td>${inquiry.subject || 'N/A'}</td>
+//             <td>${formatDate(inquiry.createdAt || inquiry.timestamp)}</td>
+//             <td><span class="status-badge status-${(inquiry.status || 'new').toLowerCase()}">
+//               ${(inquiry.status || 'new').charAt(0).toUpperCase() + (inquiry.status || 'new').slice(1)}
+//             </span></td>
+//           </tr>
+//         `).join('')}
+//       </tbody>
+//     `;
+//     inquiriesDiv.appendChild(inquiriesTable);
+//     container.appendChild(inquiriesDiv);
+//   }
+
+//   if (filteredOrders.length === 0 && filteredInquiries.length === 0) {
+//     container.innerHTML += '<p>No results found for your search.</p>';
+//   }
+// }
 
 async function updateOrderStatus(orderId, status) {
   try {
