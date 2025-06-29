@@ -591,6 +591,25 @@
   border-radius: 4px;
 }
 
+/* Add to main.css or out-of-stock.css */
+.search-dropdown {
+  max-height: 250px;
+  overflow-y: auto;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.search-result {
+  padding: 8px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+}
+.search-result:last-child {
+  border-bottom: none;
+}
+.search-result:hover {
+  background: #f6f6f6;
+}
+
 @media (max-width: 992px) {
   .admin-container {
     grid-template-columns: 1fr;

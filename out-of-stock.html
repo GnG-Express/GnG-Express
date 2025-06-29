@@ -76,9 +76,9 @@
       <div id="dashboardSection">
         <!-- Global Search -->
         <div class="admin-section">
-          <div class="admin-search">
+          <div class="admin-search" style="position:relative;">
             <input id="global-search" type="text" placeholder="Search orders or inquiries...">
-            <button class="admin-btn admin-btn-primary" id="globalSearchBtn"><i class="fas fa-search"></i> Search</button>
+            <div id="search-dropdown" class="search-dropdown" style="position:absolute;top:100%;left:0;right:0;z-index:10;background:#fff;border:1px solid #ccc;display:none;"></div>
           </div>
         </div>
         <div id="globalSearchResults" class="admin-section" style="display:none;"></div>

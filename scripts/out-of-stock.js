@@ -128,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Search buttons
   document.getElementById('searchOrdersBtn').addEventListener('click', searchOrders);
   document.getElementById('searchInquiriesBtn').addEventListener('click', searchInquiries);
-  document.getElementById('globalSearchBtn').addEventListener('click', globalSearch);
 
   // Content update form (backend version)
   document.getElementById('contentUpdateForm').addEventListener('submit', async function(e) {
@@ -213,37 +212,49 @@ document.addEventListener('DOMContentLoaded', function() {
   // Global search
   const searchInput = document.getElementById('global-search');
   const searchDropdown = document.getElementById('search-dropdown');
-
   searchInput.addEventListener('input', async (e) => {
-    const q = e.target.value;
+    const q = e.target.value.trim();
     if (!q) {
+      searchDropdown.style.display = 'none';
       searchDropdown.innerHTML = '';
       return;
     }
-    const res = await fetch(`${BACKEND_URL}/search?q=${encodeURIComponent(q)}`);
-    const data = await res.json();
-    let html = '';
-    data.orders.forEach(order => {
-      html += `<div class="search-result" data-type="order" data-id="${order._id}">Order: ${order.orderId}</div>`;
-    });
-    data.inquiries.forEach(inquiry => {
-      html += `<div class="search-result" data-type="inquiry" data-id="${inquiry._id}">Inquiry: ${inquiry.inquiryId}</div>`;
-    });
-    searchDropdown.innerHTML = html;
+    try {
+      const res = await fetch(`${BACKEND_URL}/search?q=${encodeURIComponent(q)}`);
+      const data = await res.json();
+      let html = '';
+      data.orders.forEach(order => {
+        html += `<div class="search-result" data-type="order" data-id="${order._id}">Order: ${order.orderId || order._id} - ${order.name || ''}</div>`;
+      });
+      data.inquiries.forEach(inquiry => {
+        html += `<div class="search-result" data-type="inquiry" data-id="${inquiry._id}">Inquiry: ${inquiry.inquiryId || inquiry._id} - ${inquiry.name || ''}</div>`;
+      });
+      searchDropdown.innerHTML = html || '<div class="search-result">No results found</div>';
+      searchDropdown.style.display = 'block';
+    } catch (err) {
+      searchDropdown.innerHTML = '<div class="search-result">Error fetching results</div>';
+      searchDropdown.style.display = 'block';
+    }
   });
 
-  // Handle click
   searchDropdown.addEventListener('click', (e) => {
     if (e.target.classList.contains('search-result')) {
       const type = e.target.dataset.type;
       const id = e.target.dataset.id;
       if (type === 'order') {
-        openOrderDetails(id);
-      } else {
-        openInquiryDetails(id);
+        viewOrder(id);
+      } else if (type === 'inquiry') {
+        viewInquiry(id);
       }
-      searchDropdown.innerHTML = '';
+      searchDropdown.style.display = 'none';
       searchInput.value = '';
+    }
+  });
+
+  // Hide dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!searchDropdown.contains(e.target) && e.target !== searchInput) {
+      searchDropdown.style.display = 'none';
     }
   });
 
