@@ -464,6 +464,7 @@ function viewOrder(orderId) {
     return;
   }
   currentOrderId = order._id;
+  // Only show assignment field if status is being set to "Arrived"
   document.getElementById('orderModalBody').innerHTML = `
     <table class="vendor-table">
       <tr><th>Order ID</th><td>${order.orderId || ''}</td></tr>
@@ -480,10 +481,11 @@ function viewOrder(orderId) {
           </select>
         </td>
       </tr>
-      <tr><th>Assignment</th>
+      <tr id="assignmentRow" style="display:none;">
+        <th>Assignment</th>
         <td>
           <select id="modalOrderAssignment">
-            <option value="vendor"${order.vendor ? ' selected' : ''}>Keep with Vendor</option>
+            <option value="vendor">Keep with Vendor</option>
             <option value="admin">Reassign to Admin</option>
           </select>
         </td>
@@ -493,17 +495,33 @@ function viewOrder(orderId) {
     </table>
   `;
   document.getElementById('orderModal').classList.add('active');
+
+  // Show assignment field only if status is "Arrived"
+  const statusSelect = document.getElementById('modalOrderStatus');
+  const assignmentRow = document.getElementById('assignmentRow');
+  function toggleAssignmentField() {
+    if (statusSelect.value === 'Arrived') {
+      assignmentRow.style.display = '';
+    } else {
+      assignmentRow.style.display = 'none';
+    }
+  }
+  statusSelect.addEventListener('change', toggleAssignmentField);
+  toggleAssignmentField();
 }
 
 document.getElementById('updateOrderBtn').addEventListener('click', async function() {
   if (!currentOrderId) return;
   const status = document.getElementById('modalOrderStatus').value;
-  const assignment = document.getElementById('modalOrderAssignment').value;
-  try {
-    const body = { status };
+  let body = { status };
+  // Only send assignment if status is "Arrived" and admin is selected
+  if (status === 'Arrived') {
+    const assignment = document.getElementById('modalOrderAssignment').value;
     if (assignment === 'admin') {
       body.vendor = null; // Remove vendor assignment
     }
+  }
+  try {
     const res = await fetch(`${BACKEND_URL}/vendors/orders/${currentOrderId}`, {
       method: "PATCH",
       headers: { 
