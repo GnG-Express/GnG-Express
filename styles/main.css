@@ -253,7 +253,7 @@ p {
 
 .header-icons {
   display: flex;
-  gap: 1.5rem;
+  gap: 2.5rem; /* Match the homepage spacing */
   align-items: center;
   flex-direction: row;
   margin-left: auto;

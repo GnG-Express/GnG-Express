@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vendor Portal | G&G Express</title>
+  <link rel="stylesheet" href="./styles/main.css">
+  <link rel="stylesheet" href="./styles/vendor-portal.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Jost:wght@400;500;600&family=Playfair+Display:ital,wght@0,700;1,600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.0.1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.2.0"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+</head>
+<body>
+  <!-- Login Screen -->
+  <div class="vendor-login" id="loginScreen">
+    <div class="login-card">
+      <h1>Vendor Portal</h1>
+      <p>Sign in to access your vendor dashboard</p>
+      
+      <form id="loginForm">
+        <div class="login-form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="Enter your email" required>
+        </div>
+        
+        <div class="login-form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="Enter your password" required>
+        </div>
+        
+        <button type="submit" class="login-btn">Sign In</button>
+      </form>
+      <p class="login-footer">Don't have an account? <a href="#" id="registerLink">Register here</a></p>
+    </div>
+  </div>
+
+  <!-- Vendor Dashboard -->
+  <div class="vendor-container" id="vendorDashboard" style="display: none;">
+    <!-- Sidebar -->
+    <div class="vendor-sidebar">
+      <div class="vendor-brand">
+        <h2>G&G Express</h2>
+        <p>Vendor Portal</p>
+      </div>
+      
+      <nav class="vendor-nav">
+        <a href="#" class="vendor-nav-item active" data-section="dashboard">
+          <i class="fas fa-tachometer-alt"></i> Dashboard
+        </a>
+        <a href="#" class="vendor-nav-item" data-section="orders">
+          <i class="fas fa-shopping-bag"></i> Orders
+        </a>
+        <a href="#" class="vendor-nav-item" data-section="settings">
+          <i class="fas fa-cog"></i> Settings
+        </a>
+        <a href="#" class="vendor-nav-item" id="logoutBtn">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+      </nav>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="vendor-main">
+      <!-- Dashboard Section -->
+      <div id="dashboardSection">
+        <!-- Stats Cards -->
+        <div class="vendor-cards">
+          <div class="vendor-card">
+            <div class="vendor-card-header">
+              <span class="vendor-card-title">Total Revenue</span>
+              <i class="fas fa-dollar-sign" style="color: var(--gold);"></i>
+            </div>
+            <div class="vendor-card-value" id="totalRevenue">KSh 0</div>
+            <div class="vendor-card-change positive">
+              <i class="fas fa-arrow-up"></i> <span id="revenueChange">0%</span> from last month
+            </div>
+          </div>
+          
+          <div class="vendor-card">
+            <div class="vendor-card-header">
+              <span class="vendor-card-title">Total Orders</span>
+              <i class="fas fa-shopping-bag" style="color: var(--gold);"></i>
+            </div>
+            <div class="vendor-card-value" id="totalOrders">0</div>
+            <div class="vendor-card-change positive">
+              <i class="fas fa-arrow-up"></i> <span id="ordersChange">0%</span> from last month
+            </div>
+          </div>
+          
+          <div class="vendor-card">
+            <div class="vendor-card-header">
+              <span class="vendor-card-title">Active Orders</span>
+              <i class="fas fa-clock" style="color: var(--gold);"></i>
+            </div>
+            <div class="vendor-card-value" id="activeOrders">0</div>
+            <div class="vendor-card-change negative">
+              <i class="fas fa-arrow-down"></i> <span id="activeChange">0%</span> from last month
+            </div>
+          </div>
+        </div>
+        
+        <!-- Revenue Chart -->
+        <div class="vendor-section">
+          <div class="vendor-section-header">
+            <h2 class="vendor-section-title">Revenue Overview</h2>
+            <div>
+              <select id="chartRange" class="vendor-btn vendor-btn-outline vendor-btn-sm">
+                <option value="7">Last 7 Days</option>
+                <option value="30" selected>Last 30 Days</option>
+                <option value="90">Last 90 Days</option>
+                <option value="365">Last Year</option>
+              </select>
+            </div>
+          </div>
+          <div class="vendor-chart-container">
+            <canvas id="revenueChart" width="400" height="200"></canvas>
+          </div>
+        </div>
+        
+        <!-- Recent Orders -->
+        <div class="vendor-section">
+          <div class="vendor-section-header">
+            <h2 class="vendor-section-title">Recent Orders</h2>
+            <a href="#" class="vendor-btn vendor-btn-outline vendor-btn-sm" data-section="orders">View All</a>
+          </div>
+          <div class="table-responsive">
+            <table class="vendor-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th>
+                  <th>Customer</th>
+                  <th>Date</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="recentOrdersTable">
+                <!-- Filled by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Orders Section -->
+      <div id="ordersSection" style="display: none;">
+        <div class="vendor-section-header">
+          <h2 class="vendor-section-title">Order Management</h2>
+          <div class="vendor-filters">
+            <button class="vendor-btn vendor-btn-outline vendor-btn-sm" data-filter="today">Today</button>
+            <button class="vendor-btn vendor-btn-outline vendor-btn-sm" data-filter="week">This Week</button>
+            <button class="vendor-btn vendor-btn-outline vendor-btn-sm" data-filter="month">This Month</button>
+            <button class="vendor-btn vendor-btn-outline vendor-btn-sm" data-filter="year">This Year</button>
+            <button class="vendor-btn vendor-btn-outline vendor-btn-sm" data-filter="all">All Time</button>
+          </div>
+          <div class="vendor-search">
+            <input type="text" id="orderSearch" placeholder="Search orders...">
+            <button type="button" id="searchOrdersBtn"><i class="fas fa-search"></i></button>
+          </div>
+        </div>
+        
+        <div class="table-responsive">
+          <table class="vendor-table">
+            <thead>
+              <tr>
+                <th>Order ID</th>
+                <th>Customer</th>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTable">
+              <!-- Filled by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="vendor-pagination" id="ordersPagination">
+          <!-- Filled by JavaScript -->
+        </div>
+      </div>
+      
+      <!-- Settings Section -->
+      <div id="settingsSection" style="display: none;">
+        <div class="vendor-section">
+          <div class="vendor-section-header">
+            <h2 class="vendor-section-title">Account Settings</h2>
+          </div>
+          
+          <form id="settingsForm">
+            <div class="login-form-group">
+              <label for="currentPassword">Current Password</label>
+              <input type="password" id="currentPassword" placeholder="Enter current password">
+            </div>
+            
+            <div class="login-form-group">
+              <label for="newPassword">New Password</label>
+              <input type="password" id="newPassword" placeholder="Enter new password">
+            </div>
+            
+            <div class="login-form-group">
+              <label for="confirmPassword">Confirm New Password</label>
+              <input type="password" id="confirmPassword" placeholder="Confirm new password">
+            </div>
+            
+            <button type="submit" class="vendor-btn vendor-btn-primary">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Detail Modal -->
+  <div class="vendor-modal" id="orderModal">
+    <div class="vendor-modal-content">
+      <div class="vendor-modal-header">
+        <h3 class="vendor-modal-title">Order Details</h3>
+        <button class="vendor-modal-close" id="closeOrderModal">&times;</button>
+      </div>
+      
+      <div class="vendor-modal-body" id="orderModalBody">
+        <!-- Filled by JavaScript -->
+      </div>
+      
+      <div class="vendor-modal-footer">
+        <button class="vendor-btn vendor-btn-outline" id="closeOrderModalBtn">Close</button>
+        <button class="vendor-btn vendor-btn-primary" id="updateOrderBtn">Update Status</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Registration Modal -->
+  <div class="vendor-modal" id="registerModal">
+    <div class="vendor-modal-content">
+      <div class="vendor-modal-header">
+        <h3 class="vendor-modal-title">Vendor Registration</h3>
+        <button class="vendor-modal-close" id="closeRegisterModal">&times;</button>
+      </div>
+      
+      <div class="vendor-modal-body">
+        <form id="registerForm">
+          <div class="login-form-group">
+            <label for="regName">Full Name</label>
+            <input type="text" id="regName" placeholder="Enter your full name" required>
+          </div>
+          <div class="login-form-group">
+            <label for="regEmail">Email</label>
+            <input type="email" id="regEmail" placeholder="Enter your email" required>
+          </div>
+          <div class="login-form-group">
+            <label for="regPhone">Phone Number</label>
+            <input type="tel" id="regPhone" placeholder="Enter your phone number" required>
+          </div>
+          <div class="login-form-group">
+            <label for="regPassword">Password</label>
+            <input type="password" id="regPassword" placeholder="Create a password" required>
+          </div>
+          <div class="login-form-group">
+            <label for="regConfirmPassword">Confirm Password</label>
+            <input type="password" id="regConfirmPassword" placeholder="Confirm your password" required>
+          </div>
+        </form>
+      </div>
+      
+      <div class="vendor-modal-footer">
+        <button class="vendor-btn vendor-btn-outline" id="cancelRegisterBtn">Cancel</button>
+        <button class="vendor-btn vendor-btn-primary" id="registerBtn">Register</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="./scripts/vendor-portal.js"></script>
+</body>
+</html>

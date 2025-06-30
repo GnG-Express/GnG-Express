@@ -384,6 +384,16 @@ async function fetchInquiries(filter = 'all') {
   }
 }
 
+async function fetchVendors() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/vendors/list`);
+    const data = await res.json();
+    renderVendorsTable(data.vendors || []);
+  } catch (e) {
+    showNotification('Failed to fetch vendors', 'error');
+  }
+}
+
 function applyFilter(data, filterType) {
   const now = new Date();
   return data.filter(row => {
@@ -506,6 +516,8 @@ function renderOrdersTable(ordersToRender = orders) {
         <select class="order-status-dropdown" data-id="${order._id}">
           <option value="Pending"${order.status === 'Pending' ? ' selected' : ''}>Pending</option>
           <option value="Processing"${order.status === 'Processing' ? ' selected' : ''}>Processing</option>
+          <option value="In Transit"${order.status === 'In Transit' ? ' selected' : ''}>In Transit</option>
+          <option value="Arrived"${order.status === 'Arrived' ? ' selected' : ''}>Arrived</option>
           <option value="Completed"${order.status === 'Completed' ? ' selected' : ''}>Completed</option>
           <option value="Cancelled"${order.status === 'Cancelled' ? ' selected' : ''}>Cancelled</option>
         </select>
@@ -587,6 +599,24 @@ function renderInquiriesTable(inquiriesToRender = inquiries) {
         showNotification('Failed to update inquiry status.', 'error');
       }
     });
+  });
+}
+
+function renderVendorsTable(vendors) {
+  const tbody = document.getElementById('vendorsTable');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+  vendors.forEach(v => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${v.name}</td>
+      <td>${v.email}</td>
+      <td>${v.phone || ''}</td>
+      <td>
+        <!-- Add edit/deactivate buttons as needed -->
+      </td>
+    `;
+    tbody.appendChild(tr);
   });
 }
 
@@ -808,13 +838,23 @@ async function updateInquiryStatus(inquiryId, status) {
 }
 
 // --- Modal View Functions (implement as needed for backend structure) ---
-function viewOrder(orderId) {
+async function viewOrder(orderId) {
   const order = orders.find(o => o._id === orderId);
-  if (!order) {
-    alert('Order not found');
-    return;
-  }
+  if (!order) return;
   currentOrderId = order._id;
+
+  // Fetch vendors for assignment
+  let vendorOptions = '<option value="">Unassigned</option>';
+  try {
+    const res = await fetch(`${BACKEND_URL}/vendors/list`);
+    const data = await res.json();
+    vendorOptions += (data.vendors || []).map(v =>
+      `<option value="${v._id}"${order.vendor === v._id ? ' selected' : ''}>${v.name} (${v.email})</option>`
+    ).join('');
+  } catch (e) {
+    vendorOptions += '<option value="">(Failed to load vendors)</option>';
+  }
+
   document.getElementById('orderModalBody').innerHTML = `
     <table class="admin-table">
       <tr><th>Order ID</th><td>${order.orderId || ''}</td></tr>
@@ -827,9 +867,16 @@ function viewOrder(orderId) {
           <select id="modalOrderStatus">
             <option value="Pending"${order.status === 'Pending' ? ' selected' : ''}>Pending</option>
             <option value="Processing"${order.status === 'Processing' ? ' selected' : ''}>Processing</option>
+            <option value="In Transit"${order.status === 'In Transit' ? ' selected' : ''}>In Transit</option>
+            <option value="Arrived"${order.status === 'Arrived' ? ' selected' : ''}>Arrived</option>
             <option value="Completed"${order.status === 'Completed' ? ' selected' : ''}>Completed</option>
             <option value="Cancelled"${order.status === 'Cancelled' ? ' selected' : ''}>Cancelled</option>
           </select>
+        </td>
+      </tr>
+      <tr><th>Assigned Vendor</th>
+        <td>
+          <select id="modalOrderVendor">${vendorOptions}</select>
         </td>
       </tr>
       <tr><th>Order Summary</th>
@@ -890,12 +937,13 @@ document.getElementById('updateOrderBtn').addEventListener('click', async functi
   const phone = document.getElementById('modalOrderPhone').value;
   const orderTotal = parseFloat(document.getElementById('modalOrderTotal').value) || 0;
   const status = document.getElementById('modalOrderStatus').value;
+  const vendor = document.getElementById('modalOrderVendor').value;
   const orderSummary = document.getElementById('modalOrderSummary').value;
   try {
-    await fetch(`${BACKEND_URL}/orders/${currentOrderId}`, {
+    const res = await fetch(`${BACKEND_URL}/orders/${currentOrderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, orderTotal, status, orderSummary })
+      body: JSON.stringify({ name, email, phone, orderTotal, status, vendor, orderSummary })
     });
     showNotification('Order updated!', 'success');
     closeOrderModal();

@@ -1143,3 +1143,8 @@ button[disabled],
     box-shadow: none;
     cursor: not-allowed;
 }
+
+/* Ensure header icons spacing matches homepage */
+.header-icons {
+  gap: 2.5rem !important;
+}

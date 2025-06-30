@@ -58,6 +58,9 @@
         <a href="#" class="admin-nav-item" data-section="products">
           <i class="fas fa-box-open"></i> Products
         </a>
+        <a href="#" class="admin-nav-item" data-section="vendors">
+          <i class="fas fa-users"></i> Vendors
+        </a>
         <a href="#" class="admin-nav-item" data-section="contentUpdate">
           <i class="fas fa-bullhorn"></i> Content Update
         </a>
@@ -314,6 +317,31 @@
             </thead>
             <tbody id="productPackagesTable">
               <!-- Will be filled by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      <!-- Vendors Section -->
+      <div id="vendorsSection" style="display: none;">
+        <div class="admin-section-header">
+          <h2 class="admin-section-title">Vendors</h2>
+          <button class="admin-btn admin-btn-primary" id="addVendorBtn">
+            <i class="fas fa-plus"></i> Add Vendor
+          </button>
+        </div>
+        <div class="table-responsive">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="vendorsTable">
+              <!-- Filled by JS -->
             </tbody>
           </table>
         </div>
