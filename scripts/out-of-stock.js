@@ -87,6 +87,13 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // New vendor navigation logic
+  document.querySelector('[data-section="vendors"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    showSection('vendors');
+    fetchVendors();
+  });
+
   // Settings form (local only)
   settingsForm.addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -868,7 +875,6 @@ async function viewOrder(orderId) {
   const order = orders.find(o => o._id === orderId);
   if (!order) return;
   currentOrderId = order._id;
-
   // Fetch vendors for assignment
   let vendorOptions = '<option value="">Unassigned</option>';
   try {
@@ -880,7 +886,10 @@ async function viewOrder(orderId) {
   } catch (e) {
     vendorOptions += '<option value="">(Failed to load vendors)</option>';
   }
-
+  // Assignment logs
+  const logsHtml = (order.assignmentLogs || []).map(
+    log => `<div class="assignment-log"><b>${log.user}</b> - ${log.action} <span style="color:#888;">(${formatDate(log.date)})</span></div>`
+  ).join('');
   document.getElementById('orderModalBody').innerHTML = `
     <table class="admin-table">
       <tr><th>Order ID</th><td>${order.orderId || ''}</td></tr>
@@ -911,6 +920,9 @@ async function viewOrder(orderId) {
         </td>
       </tr>
       <tr><th>Date</th><td>${formatDate(order.createdAt || order.timestamp)}</td></tr>
+      <tr><th>Assignment Logs</th>
+        <td>${logsHtml || '<em>No assignment logs</em>'}</td>
+      </tr>
     </table>
   `;
   document.getElementById('orderModal').classList.add('active');
@@ -981,13 +993,22 @@ async function viewVendor(vendorId) {
         </td>
       </tr>
       <tr><th>Change Password</th>
-        <td>
+        <td style="position:relative;">
           <input type="password" id="modalVendorPassword" placeholder="New password">
+          <span class="toggle-password" id="toggleVendorPassword" style="position:absolute;right:10px;top:10px;cursor:pointer;">
+            <i class="fas fa-eye"></i>
+          </span>
         </td>
       </tr>
     </table>
   `;
   document.getElementById('vendorModal').classList.add('active');
+  // Show/hide password
+  document.getElementById('toggleVendorPassword').onclick = function() {
+    const input = document.getElementById('modalVendorPassword');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.innerHTML = `<i class="fas fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  };
 }
 
 document.getElementById('updateVendorBtn').addEventListener('click', async function() {

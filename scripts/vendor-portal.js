@@ -179,6 +179,37 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
+  // Toggle password visibility for login
+  document.getElementById('toggleLoginPassword').onclick = function() {
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.innerHTML = `<i class="fas fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  };
+
+  // Toggle password visibility for registration
+  document.getElementById('toggleRegisterPassword').onclick = function() {
+    const input = document.getElementById('regPassword');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.innerHTML = `<i class="fas fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  };
+
+  // Toggle password visibility for settings
+  document.getElementById('toggleCurrentPassword').onclick = function() {
+    const input = document.getElementById('currentPassword');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.innerHTML = `<i class="fas fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  };
+  document.getElementById('toggleNewPassword').onclick = function() {
+    const input = document.getElementById('newPassword');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.innerHTML = `<i class="fas fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  };
+  document.getElementById('toggleConfirmPassword').onclick = function() {
+    const input = document.getElementById('confirmPassword');
+    input.type = input.type === 'password' ? 'text' : 'password';
+    this.innerHTML = `<i class="fas fa-eye${input.type === 'password' ? '' : '-slash'}"></i>`;
+  };
+
   if (currentUser) {
     fetchData();
   }
