@@ -47,7 +47,12 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       const result = await res.json();
       if (!res.ok) throw new Error(result.error || "Login failed.");
-      currentUser = result;
+      // Store token and user info in a consistent structure
+      currentUser = {
+        token: result.token,
+        email: result.email,
+        name: result.name
+      };
       localStorage.setItem('vendorUser', JSON.stringify(currentUser));
       showDashboard();
       fetchData();
@@ -416,7 +421,7 @@ async function updateRevenueChart(days = 30) {
         scales: {
           x: { display: true, title: { display: false } },
           y: { 
-            display: true, 
+            display: true,
             beginAtZero: true,
             ticks: {
               callback: function(value) {

@@ -945,6 +945,8 @@ document.getElementById('updateOrderBtn').addEventListener('click', async functi
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, phone, orderTotal, status, vendor, orderSummary })
     });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Failed to update order.");
     showNotification('Order updated!', 'success');
     closeOrderModal();
     fetchOrders();
