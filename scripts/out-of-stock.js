@@ -303,7 +303,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     setTimeout(() => revenueChart.resize(), 100);
   }
-  loadRevenueGraph();
+  loadRevenueChart();
 });
 
 // ===== Helper Functions =====
@@ -311,6 +311,8 @@ function showDashboard() {
   loginScreen.style.display = 'none';
   adminDashboard.style.display = 'grid';
   showSection('dashboard');
+  // Show user name in header
+  document.getElementById('adminUserName').textContent = currentUser?.name ? `Logged in as: ${currentUser.name}` : '';
 }
 
 function showSection(section) {
@@ -987,9 +989,6 @@ async function viewVendor(vendorId) {
   `;
   document.getElementById('vendorModal').classList.add('active');
 }
-
-document.getElementById('closeVendorModal').addEventListener('click', closeVendorModal);
-document.getElementById('closeVendorModalBtn').addEventListener('click', closeVendorModal);
 
 document.getElementById('updateVendorBtn').addEventListener('click', async function() {
   if (!currentVendorId) return;

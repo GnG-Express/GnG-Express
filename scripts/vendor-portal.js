@@ -163,6 +163,22 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   });
 
+  // Delete account button
+  document.getElementById('deleteAccountBtn').addEventListener('click', async function() {
+    if (!confirm('Are you sure you want to request account deletion? This action is irreversible.')) return;
+    try {
+      const res = await fetch(`${BACKEND_URL}/vendors/${currentUser.email}/request-deletion`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" }
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Failed to request deletion.");
+      showNotification('Account deletion request sent to admin.', 'success');
+    } catch (err) {
+      showNotification(err.message || 'Failed to request deletion.', 'error');
+    }
+  });
+
   if (currentUser) {
     fetchData();
   }
@@ -173,6 +189,8 @@ function showDashboard() {
   loginScreen.style.display = 'none';
   vendorDashboard.style.display = 'grid';
   showSection('dashboard');
+  // Show user name in header
+  document.getElementById('vendorUserName').textContent = currentUser?.name ? `Logged in as: ${currentUser.name}` : '';
 }
 
 function showSection(section) {
