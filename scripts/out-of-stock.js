@@ -19,6 +19,7 @@ const itemsPerPage = 10;
 let revenueChart = null;
 let currentOrderId = null;
 let currentInquiryId = null;
+let currentVendorId = null;
 
 const loginScreen = document.getElementById('loginScreen');
 const adminDashboard = document.getElementById('adminDashboard');
@@ -613,10 +614,33 @@ function renderVendorsTable(vendors) {
       <td>${v.email}</td>
       <td>${v.phone || ''}</td>
       <td>
-        <!-- Add edit/deactivate buttons as needed -->
+        <select class="vendor-status-dropdown" data-id="${v._id}">
+          <option value="approved"${v.status === 'approved' ? ' selected' : ''}>Approved</option>
+          <option value="rejected"${v.status === 'rejected' ? ' selected' : ''}>Rejected</option>
+        </select>
+      </td>
+      <td>
+        <button class="admin-btn admin-btn-outline admin-btn-sm" onclick="viewVendor('${v._id}')">
+          <i class="fas fa-eye"></i> View
+        </button>
       </td>
     `;
     tbody.appendChild(tr);
+
+    // Status change handler
+    tr.querySelector('.vendor-status-dropdown').addEventListener('change', async function() {
+      const status = this.value;
+      try {
+        await fetch(`${BACKEND_URL}/vendors/${v._id}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status })
+        });
+        showNotification('Vendor status updated!', 'success');
+      } catch (err) {
+        showNotification('Failed to update status', 'error');
+      }
+    });
   });
 }
 
@@ -930,50 +954,61 @@ function viewInquiry(inquiryId) {
   document.getElementById('inquiryModal').classList.add('active');
 }
 
-document.getElementById('updateOrderBtn').addEventListener('click', async function() {
-  if (!currentOrderId) return;
-  const name = document.getElementById('modalOrderName').value;
-  const email = document.getElementById('modalOrderEmail').value;
-  const phone = document.getElementById('modalOrderPhone').value;
-  const orderTotal = parseFloat(document.getElementById('modalOrderTotal').value) || 0;
-  const status = document.getElementById('modalOrderStatus').value;
-  const vendor = document.getElementById('modalOrderVendor').value;
-  const orderSummary = document.getElementById('modalOrderSummary').value;
+async function viewVendor(vendorId) {
+  currentVendorId = vendorId;
+  // Fetch vendor details
+  let vendor;
   try {
-    const res = await fetch(`${BACKEND_URL}/orders/${currentOrderId}`, {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, orderTotal, status, vendor, orderSummary })
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "Failed to update order.");
-    showNotification('Order updated!', 'success');
-    closeOrderModal();
-    fetchOrders();
-  } catch (error) {
-    showNotification('Failed to update order.', 'error');
+    const res = await fetch(`${BACKEND_URL}/vendors/${vendorId}`);
+    vendor = await res.json();
+  } catch (e) {
+    showNotification('Failed to fetch vendor details', 'error');
+    return;
   }
-});
+  document.getElementById('vendorModalBody').innerHTML = `
+    <table class="admin-table">
+      <tr><th>Name</th><td><input type="text" id="modalVendorName" value="${vendor.name || ''}"></td></tr>
+      <tr><th>Email</th><td><input type="email" id="modalVendorEmail" value="${vendor.email || ''}"></td></tr>
+      <tr><th>Phone</th><td><input type="text" id="modalVendorPhone" value="${vendor.phone || ''}"></td></tr>
+      <tr><th>Status</th>
+        <td>
+          <select id="modalVendorStatus">
+            <option value="approved"${vendor.status === 'approved' ? ' selected' : ''}>Approved</option>
+            <option value="rejected"${vendor.status === 'rejected' ? ' selected' : ''}>Rejected</option>
+          </select>
+        </td>
+      </tr>
+      <tr><th>Change Password</th>
+        <td>
+          <input type="password" id="modalVendorPassword" placeholder="New password">
+        </td>
+      </tr>
+    </table>
+  `;
+  document.getElementById('vendorModal').classList.add('active');
+}
 
-document.getElementById('updateInquiryBtn').addEventListener('click', async function() {
-  if (!currentInquiryId) return;
-  const status = document.getElementById('modalInquiryStatus').value;
-  const comments = document.getElementById('modalInquiryComments').value;
+document.getElementById('closeVendorModal').addEventListener('click', closeVendorModal);
+document.getElementById('closeVendorModalBtn').addEventListener('click', closeVendorModal);
+
+document.getElementById('updateVendorBtn').addEventListener('click', async function() {
+  if (!currentVendorId) return;
+  const name = document.getElementById('modalVendorName').value;
+  const email = document.getElementById('modalVendorEmail').value;
+  const phone = document.getElementById('modalVendorPhone').value;
+  const status = document.getElementById('modalVendorStatus').value;
+  const password = document.getElementById('modalVendorPassword').value;
   try {
-    await fetch(`${BACKEND_URL}/inquiries/${currentInquiryId}`, {
+    await fetch(`${BACKEND_URL}/vendors/${currentVendorId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ 
-        status, 
-        comments, 
-        user: currentUser?.email || 'admin' 
-      })
+      body: JSON.stringify({ name, email, phone, status, password: password || undefined })
     });
-    showNotification('Inquiry updated!', 'success');
-    closeInquiryModal();
-    fetchInquiries();
-  } catch (error) {
-    showNotification('Failed to update inquiry.', 'error');
+    showNotification('Vendor updated!', 'success');
+    closeVendorModal();
+    fetchVendors();
+  } catch (err) {
+    showNotification('Failed to update vendor', 'error');
   }
 });
 
@@ -988,6 +1023,10 @@ function closeInquiryModal() {
 function closePackageModal() {
   document.getElementById('packageModal').classList.remove('active');
   document.getElementById('packageForm').reset();
+}
+
+function closeVendorModal() {
+  document.getElementById('vendorModal').classList.remove('active');
 }
 
 function formatDate(dateString) {
@@ -1014,3 +1053,4 @@ function showNotification(message, type = 'info') {
 // Expose functions to global scope for HTML onclick handlers
 window.viewOrder = viewOrder;
 window.viewInquiry = viewInquiry;
+window.viewVendor = viewVendor;

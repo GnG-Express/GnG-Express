@@ -480,6 +480,14 @@ function viewOrder(orderId) {
           </select>
         </td>
       </tr>
+      <tr><th>Assignment</th>
+        <td>
+          <select id="modalOrderAssignment">
+            <option value="vendor"${order.vendor ? ' selected' : ''}>Keep with Vendor</option>
+            <option value="admin">Reassign to Admin</option>
+          </select>
+        </td>
+      </tr>
       <tr><th>Order Summary</th><td>${order.orderSummary || ''}</td></tr>
       <tr><th>Date</th><td>${formatDate(order.createdAt || order.timestamp)}</td></tr>
     </table>
@@ -490,14 +498,19 @@ function viewOrder(orderId) {
 document.getElementById('updateOrderBtn').addEventListener('click', async function() {
   if (!currentOrderId) return;
   const status = document.getElementById('modalOrderStatus').value;
+  const assignment = document.getElementById('modalOrderAssignment').value;
   try {
+    const body = { status };
+    if (assignment === 'admin') {
+      body.vendor = null; // Remove vendor assignment
+    }
     const res = await fetch(`${BACKEND_URL}/vendors/orders/${currentOrderId}`, {
       method: "PATCH",
       headers: { 
         "Content-Type": "application/json",
         'Authorization': `Bearer ${currentUser.token}`
       },
-      body: JSON.stringify({ status })
+      body: JSON.stringify(body)
     });
     const result = await res.json();
     if (!res.ok) throw new Error(result.error || "Failed to update order.");
