@@ -365,9 +365,10 @@ function renderOrdersTable(ordersToRender = orders) {
   if (!tbody) return;
   tbody.innerHTML = '';
 
-  // Only show orders that vendors can manage
-  const vendorOrders = ordersToRender.filter(order => 
-    VENDOR_ORDER_STATUSES.includes(order.status)
+  // Only show orders that vendors can manage and are assigned to them
+  const vendorOrders = ordersToRender.filter(order =>
+    VENDOR_ORDER_STATUSES.includes(order.status) &&
+    order.vendor === currentUser._id
   );
 
   vendorOrders.forEach((order) => {
@@ -379,9 +380,9 @@ function renderOrdersTable(ordersToRender = orders) {
       <td>${calculateVendorRevenue(order)}</td>
       <td>
         <select class="order-status-dropdown" data-id="${order._id}">
-          <option value="Processing"${order.status === 'Processing' ? ' selected' : ''}>Processing</option>
-          <option value="In Transit"${order.status === 'In Transit' ? ' selected' : ''}>In Transit</option>
-          <option value="Arrived"${order.status === 'Arrived' ? ' selected' : ''}>Arrived</option>
+          <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+          <option value="In Transit" ${order.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+          <option value="Arrived" ${order.status === 'Arrived' ? 'selected' : ''}>Arrived</option>
         </select>
       </td>
       <td>
@@ -398,17 +399,43 @@ function renderOrdersTable(ordersToRender = orders) {
     tr.querySelector('.save-order-btn').addEventListener('click', async function() {
       const orderId = order._id;
       const status = tr.querySelector('.order-status-dropdown').value;
+      const comment = prompt("Please add a note about this status change:");
+
+      if (!comment) {
+        showNotification('Please provide a comment for the status change', 'error');
+        return;
+      }
+
       try {
         const res = await fetch(`${BACKEND_URL}/vendors/orders/${orderId}`, {
           method: "PATCH",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             'Authorization': `Bearer ${currentUser.token}`
           },
-          body: JSON.stringify({ status })
+          body: JSON.stringify({
+            status,
+            comment,
+            action: `Status changed to ${status}`
+          })
         });
         const result = await res.json();
         if (!res.ok) throw new Error(result.error || "Failed to update order.");
+
+        // If status is "Arrived", show reassign option
+        if (status === 'Arrived') {
+          const reassign = confirm("Would you like to reassign this order to admin for final payment?");
+          if (reassign) {
+            await fetch(`${BACKEND_URL}/vendors/orders/${orderId}/reassign`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                'Authorization': `Bearer ${currentUser.token}`
+              }
+            });
+          }
+        }
+
         showNotification('Order updated!', 'success');
         fetchOrders();
       } catch (error) {

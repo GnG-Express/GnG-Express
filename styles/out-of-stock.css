@@ -624,6 +624,13 @@
   background: #f6f6f6;
 }
 
+.message { margin-bottom: 1rem; }
+.admin-message { text-align: right; }
+.vendor-message { text-align: left; }
+.message-header { font-size: 0.9em; color: #888; margin-bottom: 2px; }
+.message-content { background: #f6f6f6; display: inline-block; padding: 8px 14px; border-radius: 8px; }
+.admin-message .message-content { background: #e6ffe6; }
+
 @media (max-width: 992px) {
   .admin-container {
     grid-template-columns: 1fr;

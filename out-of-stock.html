@@ -354,6 +354,7 @@
               <th>Email</th>
               <th>Phone</th>
               <th>Status</th>
+              <th>Balance</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -535,6 +536,23 @@
           </div>
           <button type="submit" class="admin-btn admin-btn-primary">Register</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Messaging Modal -->
+  <div class="admin-modal" id="messageModal">
+    <div class="admin-modal-content" style="max-width:500px;">
+      <div class="admin-modal-header">
+        <h3 class="admin-modal-title">Message Vendor</h3>
+        <button class="admin-modal-close" onclick="document.getElementById('messageModal').classList.remove('active')">&times;</button>
+      </div>
+      <div class="admin-modal-body" style="padding-bottom:0;">
+        <div id="messagesContainer" style="max-height:300px;overflow-y:auto;margin-bottom:1rem;"></div>
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="messageInput" placeholder="Type your message..." style="flex:1;">
+          <button id="sendMessageBtn" class="admin-btn admin-btn-primary">Send</button>
+        </div>
       </div>
     </div>
   </div>

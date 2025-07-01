@@ -268,57 +268,57 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('revenueType').addEventListener('change', loadRevenueChart);
 
   async function loadRevenueChart() {
-    const type = document.getElementById('revenueType').value;
-    const res = await fetch(`${BACKEND_URL}/orders/revenue-overview`);
-    const data = await res.json();
-    if (!Array.isArray(data)) {
-      showNotification('Failed to load revenue data', 'error');
-      return;
-    }
-    const labels = data.map(item => item._id);
-    let totals;
-    if (type === 'profit') {
-      totals = data.map(item => item.profit || 0);
-    } else {
-      totals = data.map(item => item.total || 0);
-    }
-
-    const ctx = document.getElementById('revenueChart').getContext('2d');
-
-    // Only destroy if revenueChart is a Chart instance
-    if (revenueChart && typeof revenueChart.destroy === 'function' && revenueChart instanceof Chart) {
-      revenueChart.destroy();
-    }
-
-    revenueChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Revenue',
-          data: totals,
-          borderColor: 'green',
-          backgroundColor: 'rgba(34,139,34,0.08)',
-          fill: true,
-          tension: 0.3,
-          pointRadius: 4,
-          pointBackgroundColor: 'var(--gold)'
-        }]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          datalabels: { display: false }
-        },
-        scales: {
-          x: { display: true, title: { display: false } },
-          y: { display: true, beginAtZero: true }
-        }
+    try {
+      const type = document.getElementById('revenueType').value; // <-- Add this line
+      const res = await fetch(`${BACKEND_URL}/orders/revenue-overview`);
+      const data = await res.json();
+      if (!Array.isArray(data)) throw new Error("No revenue data");
+      const labels = data.map(item => item._id);
+      let totals;
+      if (type === 'profit') {
+        totals = data.map(item => item.profit || 0);
+      } else {
+        totals = data.map(item => item.total || 0);
       }
-    });
-    setTimeout(() => revenueChart.resize(), 100);
+
+      const ctx = document.getElementById('revenueChart').getContext('2d');
+
+      if (revenueChart && typeof revenueChart.destroy === 'function' && revenueChart instanceof Chart) {
+        revenueChart.destroy();
+      }
+
+      revenueChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels,
+          datasets: [{
+            label: type === 'profit' ? 'Profit' : 'Revenue',
+            data: totals,
+            borderColor: 'green',
+            backgroundColor: 'rgba(34,139,34,0.08)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 4,
+            pointBackgroundColor: 'var(--gold)'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            datalabels: { display: false }
+          },
+          scales: {
+            x: { display: true, title: { display: false } },
+            y: { display: true, beginAtZero: true }
+          }
+        }
+      });
+      setTimeout(() => revenueChart.resize(), 100);
+    } catch (e) {
+      showNotification('Failed to load revenue data', 'error');
+    }
   }
   loadRevenueChart();
 
@@ -449,7 +449,7 @@ async function fetchVendors() {
     renderVendorsTable(data.vendors || []);
   } catch (e) {
     showNotification('Failed to fetch vendors', 'error');
-    renderVendorsTable([]); // Show empty state
+    renderVendorsTable([]);
   }
 }
 
@@ -670,28 +670,32 @@ function renderVendorsTable(vendors) {
   const tbody = document.getElementById('vendorsTable');
   if (!tbody) return;
   tbody.innerHTML = '';
+  
   if (!vendors.length) {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="5" style="text-align:center;color:#888;">No vendors found.</td>`;
-    tbody.appendChild(tr);
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No vendors found</td></tr>`;
     return;
   }
-  vendors.forEach(v => {
+
+  vendors.forEach(vendor => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${v.name}</td>
-      <td>${v.email}</td>
-      <td>${v.phone || ''}</td>
+      <td>${vendor.name}</td>
+      <td>${vendor.email}</td>
+      <td>${vendor.phone || 'N/A'}</td>
       <td>
-        <select class="vendor-status-dropdown" data-id="${v._id}">
-          <option value="approved"${v.status === 'approved' ? ' selected' : ''}>Approved</option>
-          <option value="rejected"${v.status === 'rejected' ? ' selected' : ''}>Rejected</option>
-          <option value="pending"${v.status === 'pending' ? ' selected' : ''}>Pending</option>
+        <select class="vendor-status-dropdown" data-id="${vendor._id}">
+          <option value="pending" ${vendor.status === 'pending' ? 'selected' : ''}>Pending</option>
+          <option value="approved" ${vendor.status === 'approved' ? 'selected' : ''}>Approved</option>
+          <option value="rejected" ${vendor.status === 'rejected' ? 'selected' : ''}>Rejected</option>
         </select>
       </td>
+      <td>${vendor.balance || 0} KES</td>
       <td>
-        <button class="admin-btn admin-btn-outline admin-btn-sm" onclick="viewVendor('${v._id}')">
+        <button class="admin-btn admin-btn-outline admin-btn-sm" onclick="viewVendor('${vendor._id}')">
           <i class="fas fa-eye"></i> View
+        </button>
+        <button class="admin-btn admin-btn-primary admin-btn-sm" onclick="messageVendor('${vendor._id}')">
+          <i class="fas fa-envelope"></i> Message
         </button>
       </td>
     `;
@@ -701,14 +705,17 @@ function renderVendorsTable(vendors) {
     tr.querySelector('.vendor-status-dropdown').addEventListener('change', async function() {
       const status = this.value;
       try {
-        await fetch(`${BACKEND_URL}/vendors/${v._id}/status`, {
+        const res = await fetch(`${BACKEND_URL}/vendors/${vendor._id}/status`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status })
         });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to update status");
         showNotification('Vendor status updated!', 'success');
+        fetchVendors();
       } catch (err) {
-        showNotification('Failed to update status', 'error');
+        showNotification(err.message || 'Failed to update status', 'error');
       }
     });
   });
@@ -937,71 +944,203 @@ async function updateInquiryStatus(inquiryId, status) {
 // --- Modal View Functions (implement as needed for backend structure) ---
 async function viewOrder(orderId) {
   const order = orders.find(o => o._id === orderId);
-  if (!order) return;
+  if (!order) {
+    showNotification('Order not found', 'error');
+    return;
+  }
+
   currentOrderId = order._id;
-  // Fetch vendors for assignment
-  let vendorOptions = `<option value="admin"${!order.vendor ? ' selected' : ''}>Admin</option>`;
+
+  // Fetch approved vendors
+  let vendorOptions = '<option value="">Select Vendor</option>';
   try {
-    const res = await fetch(`${BACKEND_URL}/vendors/list`);
-    const data = await res.json();
-    vendorOptions += (data.vendors || []).map(v =>
-      `<option value="${v._id}"${order.vendor === v._id ? ' selected' : ''}>${v.name} (${v.email})</option>`
+    const res = await fetch(`${BACKEND_URL}/vendors/approved`);
+    const vendors = await res.json();
+    vendorOptions += (vendors || []).map(v =>
+      `<option value="${v._id}" ${order.vendor === v._id ? 'selected' : ''}>
+        ${v.name} (${v.email})
+      </option>`
     ).join('');
   } catch (e) {
-    vendorOptions += '<option value="">(Failed to load vendors)</option>';
+    showNotification('Failed to load vendors', 'error');
   }
-  // Assignment logs
-  const logsHtml = (order.assignmentLogs || []).map(
-    log => `<div class="assignment-log"><b>${log.user}</b> - ${log.action} <span style="color:#888;">(${formatDate(log.date)})</span></div>`
-  ).join('');
-  const isAssignedToAdmin = !order.vendor;
-  const statusOptions = [
-    { value: "Pending", label: "Pending" },
-    { value: "Processing", label: "Processing", disabled: isAssignedToAdmin },
-    { value: "In Transit", label: "In Transit" },
-    { value: "Arrived", label: "Arrived" },
-    { value: "Completed", label: "Completed" },
-    { value: "Cancelled", label: "Cancelled" }
-  ];
-  const statusDropdown = statusOptions.map(opt =>
-    `<option value="${opt.value}"${order.status === opt.value ? ' selected' : ''}${opt.disabled ? ' disabled' : ''}>${opt.label}</option>`
-  ).join('');
+
+  // --- Helper: Parse order summary for total weight and total price ---
+  function parseOrderSummary(summary) {
+    if (!summary) return { totalKg: 0, totalPrice: 0 };
+    let totalKg = 0, totalPrice = 0;
+    const lines = summary.split('\n');
+    for (const line of lines) {
+      // Match: 2 × Pishori Rice (10kg) (KSh 2200.00)
+      const match = line.match(/(\d+)\s*[×x]\s*.*\((\d+)\s*kg\).*?\(KSh\s*([\d,\.]+)\)/i);
+      if (match) {
+        const qty = parseInt(match[1]);
+        const kg = parseInt(match[2]);
+        const unitPrice = parseFloat(match[3].replace(/,/g, ''));
+        totalKg += qty * kg;
+        totalPrice += qty * unitPrice;
+      }
+    }
+    return { totalKg, totalPrice };
+  }
+
+  // --- Calculate values ---
+  const { totalKg, totalPrice } = parseOrderSummary(order.orderSummary || '');
+  // Default orderTotal is sum of all items, but admin can override
+  const orderTotal = typeof order.orderTotal === 'number' ? order.orderTotal : totalPrice;
+  const deliveryFee = typeof order.deliveryFee === 'number' ? order.deliveryFee : 100;
+  const grossOrderTotal = Number(orderTotal) + Number(deliveryFee);
+  const vendorDue = totalKg * 160;
+
+  // Logs
+  const logsHtml = (order.logs || []).map(log => `
+    <div class="log-entry">
+      <strong>${formatDate(log.timestamp)}</strong> - ${log.user}: ${log.action}
+      ${log.comment ? `<div class="log-comment">Note: ${log.comment}</div>` : ''}
+    </div>
+  `).join('');
+
   document.getElementById('orderModalBody').innerHTML = `
-    <table class="admin-table">
-      <tr><th>Order ID</th><td>${order.orderId || ''}</td></tr>
-      <tr><th>Name</th><td><input type="text" id="modalOrderName" value="${order.name || ''}"></td></tr>
-      <tr><th>Email</th><td><input type="email" id="modalOrderEmail" value="${order.email || ''}"></td></tr>
-      <tr><th>Phone</th><td><input type="text" id="modalOrderPhone" value="${order.phone || ''}"></td></tr>
-      <tr><th>Amount</th><td><input type="number" id="modalOrderTotal" value="${order.orderTotal || 0}" min="0"></td></tr>
-      <tr><th>Status</th>
-        <td>
-          <select id="modalOrderStatus">
-            <option value="Pending"${order.status === 'Pending' ? ' selected' : ''}>Pending</option>
-            <option value="Processing"${order.status === 'Processing' ? ' selected' : ''}>Processing</option>
-            <option value="In Transit"${order.status === 'In Transit' ? ' selected' : ''}>In Transit</option>
-            <option value="Arrived"${order.status === 'Arrived' ? ' selected' : ''}>Arrived</option>
-            <option value="Completed"${order.status === 'Completed' ? ' selected' : ''}>Completed</option>
-            <option value="Cancelled"${order.status === 'Cancelled' ? ' selected' : ''}>Cancelled</option>
-          </select>
-        </td>
-      </tr>
-      <tr><th>Assigned Vendor</th>
-        <td>
-          <select id="modalOrderVendor">${vendorOptions}</select>
-        </td>
-      </tr>
-      <tr><th>Order Summary</th>
-        <td>
-          <textarea id="modalOrderSummary" rows="4" style="width:98%;">${order.orderSummary || ''}</textarea>
-        </td>
-      </tr>
-      <tr><th>Date</th><td>${formatDate(order.createdAt || order.timestamp)}</td></tr>
-      <tr><th>Assignment Logs</th>
-        <td>${logsHtml || '<em>No assignment logs</em>'}</td>
-      </tr>
-    </table>
+    <div class="order-details-grid">
+      <div class="order-details-group">
+        <h4 style="color:var(--primary);">Order Information</h4>
+        <div class="order-details-row">
+          <span class="order-details-label">Order ID:</span>
+          <span class="order-details-value">
+            <input type="text" id="modalOrderId" value="${order.orderId || ''}" class="brand-input">
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Customer:</span>
+          <span class="order-details-value">
+            <input type="text" id="modalOrderName" value="${order.name || ''}" class="brand-input">
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Phone:</span>
+          <span class="order-details-value">
+            <input type="text" id="modalOrderPhone" value="${order.phone || ''}" class="brand-input">
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Delivery Address:</span>
+          <span class="order-details-value">
+            <input type="text" id="modalOrderDelivery" value="${order.deliveryAddress || ''}" class="brand-input">
+          </span>
+        </div>
+      </div>
+      <div class="order-details-group">
+        <h4 style="color:var(--primary);">Order Details</h4>
+        <div class="order-details-row">
+          <span class="order-details-label">Status:</span>
+          <span class="order-details-value">
+            <select id="modalOrderStatus" class="brand-input">
+              ${ORDER_STATUSES.map(s => `<option value="${s}" ${order.status === s ? 'selected' : ''}>${s}</option>`).join('')}
+            </select>
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Assigned Vendor:</span>
+          <span class="order-details-value">
+            <select id="modalOrderVendor" class="brand-input">${vendorOptions}</select>
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Order Total (KES):</span>
+          <span class="order-details-value">
+            <input type="number" id="modalOrderTotal" value="${orderTotal}" min="0" class="brand-input">
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Delivery Fee (KES):</span>
+          <span class="order-details-value">
+            <input type="number" id="modalDeliveryFee" value="${deliveryFee}" min="0" class="brand-input">
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Gross Order Total (KES):</span>
+          <span class="order-details-value">
+            <input type="number" id="modalGrossOrderTotal" value="${grossOrderTotal}" readonly class="brand-input" style="background:#f6f6f6;">
+          </span>
+        </div>
+        <div class="order-details-row">
+          <span class="order-details-label">Customer Payment:</span>
+          <span class="order-details-value">
+            <select id="modalOrderPaymentReceived" class="brand-input">
+              <option value="true" ${order.paymentReceived ? 'selected' : ''}>Paid</option>
+              <option value="false" ${!order.paymentReceived ? 'selected' : ''}>Unpaid</option>
+            </select>
+          </span>
+        </div>
+        <div class="order-details-row" id="vendorPaymentGroup" style="${order.status === 'Completed' ? '' : 'display:none;'}">
+          <span class="order-details-label">Vendor Payment:</span>
+          <span class="order-details-value">
+            <select id="modalOrderVendorPaymentSent" class="brand-input">
+              <option value="true" ${order.vendorPaymentSent ? 'selected' : ''}>Paid</option>
+              <option value="false" ${!order.vendorPaymentSent ? 'selected' : ''}>Unpaid</option>
+            </select>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="order-details-group">
+      <h4 style="color:var(--primary);">Order Summary</h4>
+      <textarea id="modalOrderSummary" rows="2" style="width:100%;" class="brand-input">${order.orderSummary || ''}</textarea>
+    </div>
+    <div class="order-details-group">
+      <h4 style="color:var(--primary);">Payment Breakdown</h4>
+      <div class="payment-breakdown">
+        <div>Total Weight: <span id="totalKgSpan">${totalKg}</span> kg</div>
+        <div>Product Cost: <span id="productCostSpan">${totalPrice}</span> KES</div>
+        <div>Order Total: <span id="orderTotalSpan">${orderTotal}</span> KES</div>
+        <div>Delivery Fee: <span id="deliveryFeeSpan">${deliveryFee}</span> KES</div>
+        <div>Gross Order Total: <span id="grossOrderTotalSpan">${grossOrderTotal}</span> KES</div>
+        <div>Vendor Payment Due: <span id="vendorDueSpan">${vendorDue}</span> KES</div>
+      </div>
+    </div>
+    <div class="order-details-group">
+      <h4 style="color:var(--primary);">Add Comment</h4>
+      <textarea id="updateComment" rows="3" placeholder="Add notes about this update..." class="brand-input"></textarea>
+    </div>
+    <div class="order-details-group">
+      <h4 style="color:var(--primary);">Activity Log</h4>
+      <div class="activity-log">${logsHtml || 'No activity yet'}</div>
+    </div>
   `;
+
   document.getElementById('orderModal').classList.add('active');
+
+  // Show/hide vendor payment section based on status
+  document.getElementById('modalOrderStatus').addEventListener('change', function() {
+    document.getElementById('vendorPaymentGroup').style.display =
+      this.value === 'Completed' ? 'block' : 'none';
+  });
+
+  // --- Live update payment summary when summary, order total, or delivery fee changes ---
+  function updatePaymentSummary() {
+    const summary = document.getElementById('modalOrderSummary').value;
+    const fee = parseFloat(document.getElementById('modalDeliveryFee').value) || 0;
+    let orderTotalInput = parseFloat(document.getElementById('modalOrderTotal').value) || 0;
+    // If admin hasn't edited order total, recalculate from summary
+    const { totalKg, totalPrice } = parseOrderSummary(summary);
+    // If the order total field matches the calculated price, keep it in sync with summary edits
+    if (orderTotalInput === 0 || orderTotalInput === totalPrice) {
+      orderTotalInput = totalPrice;
+      document.getElementById('modalOrderTotal').value = totalPrice;
+    }
+    const grossTotal = orderTotalInput + fee;
+    const vendDue = totalKg * 160;
+    document.getElementById('totalKgSpan').textContent = totalKg;
+    document.getElementById('productCostSpan').textContent = totalPrice;
+    document.getElementById('orderTotalSpan').textContent = orderTotalInput;
+    document.getElementById('deliveryFeeSpan').textContent = fee;
+    document.getElementById('grossOrderTotalSpan').textContent = grossTotal;
+    document.getElementById('vendorDueSpan').textContent = vendDue;
+    document.getElementById('modalGrossOrderTotal').value = grossTotal;
+  }
+  document.getElementById('modalOrderSummary').addEventListener('input', updatePaymentSummary);
+  document.getElementById('modalOrderTotal').addEventListener('input', updatePaymentSummary);
+  document.getElementById('modalDeliveryFee').addEventListener('input', updatePaymentSummary);
 }
 
 function viewInquiry(inquiryId) {
@@ -1116,19 +1255,49 @@ document.getElementById('updateVendorBtn').addEventListener('click', async funct
 
 document.getElementById('updateOrderBtn').addEventListener('click', async function() {
   if (!currentOrderId) return;
+  const orderId = document.getElementById('modalOrderId').value;
   const name = document.getElementById('modalOrderName').value;
-  const email = document.getElementById('modalOrderEmail').value;
   const phone = document.getElementById('modalOrderPhone').value;
-  const orderTotal = parseFloat(document.getElementById('modalOrderTotal').value) || 0;
+  const deliveryAddress = document.getElementById('modalOrderDelivery').value;
+  const deliveryFee = parseFloat(document.getElementById('modalDeliveryFee').value) || 0;
   const status = document.getElementById('modalOrderStatus').value;
   const vendor = document.getElementById('modalOrderVendor').value;
   const orderSummary = document.getElementById('modalOrderSummary').value;
+  const paymentReceived = document.getElementById('modalOrderPaymentReceived').value === "true";
+  const vendorPaymentSent = document.getElementById('modalOrderVendorPaymentSent')
+    ? document.getElementById('modalOrderVendorPaymentSent').value === "true"
+    : false;
+  const comment = document.getElementById('updateComment').value;
+
+  // Parse order summary for correct orderTotal and totalKg
+  function parseOrderSummary(summary) {
+    if (!summary) return { totalKg: 0, totalPrice: 0 };
+    let totalKg = 0, totalPrice = 0;
+    const lines = summary.split('\n');
+    for (const line of lines) {
+      // Match: 2 × Pishori Rice (10kg) (KSh 2200.00)
+      const match = line.match(/(\d+)\s*[×x]\s*.*\((\d+)\s*kg\).*?\(KSh\s*([\d,\.]+)\)/i);
+      if (match) {
+        const qty = parseInt(match[1]);
+        const kg = parseInt(match[2]);
+        const unitPrice = parseFloat(match[3].replace(/,/g, ''));
+        totalKg += qty * kg;
+        totalPrice += qty * unitPrice;
+      }
+    }
+    return { totalKg, totalPrice };
+  }
+  const { totalKg, totalPrice } = parseOrderSummary(orderSummary);
+  // Order total is sum of all items (not including delivery fee)
+  const orderTotal = parseFloat(document.getElementById('modalOrderTotal').value) || totalPrice;
+
   try {
     const res = await fetch(`${BACKEND_URL}/orders/${currentOrderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        name, email, phone, orderTotal, status, vendor, orderSummary,
+        orderId, name, phone, deliveryAddress, deliveryFee, orderTotal, status, vendor, orderSummary,
+        paymentReceived, vendorPaymentSent, comment,
         updatedBy: currentUser?.name || currentUser?.email || 'admin'
       })
     });
@@ -1207,3 +1376,53 @@ function showNotification(message, type = 'info') {
 window.viewOrder = viewOrder;
 window.viewInquiry = viewInquiry;
 window.viewVendor = viewVendor;
+function messageVendor(vendorId) {
+  currentVendorId = vendorId;
+  fetchMessages(vendorId);
+  document.getElementById('messageModal').classList.add('active');
+}
+
+async function fetchMessages(vendorId) {
+  try {
+    const res = await fetch(`${BACKEND_URL}/messages?vendorId=${vendorId}`);
+    const data = await res.json();
+    renderMessages(data.messages || []);
+  } catch (e) {
+    showNotification('Failed to load messages', 'error');
+  }
+}
+
+function renderMessages(messages) {
+  const container = document.getElementById('messagesContainer');
+  container.innerHTML = messages.map(msg => `
+    <div class="message ${msg.sender === 'admin' ? 'admin-message' : 'vendor-message'}">
+      <div class="message-header">
+        <strong>${msg.sender === 'admin' ? 'You' : (msg.vendorName || 'Vendor')}</strong>
+        <span class="message-time">${formatDate(msg.timestamp)}</span>
+      </div>
+      <div class="message-content">${msg.content}</div>
+    </div>
+  `).join('');
+  container.scrollTop = container.scrollHeight;
+}
+
+document.getElementById('sendMessageBtn').addEventListener('click', async function() {
+  const message = document.getElementById('messageInput').value.trim();
+  if (!message) return;
+
+  try {
+    await fetch(`${BACKEND_URL}/messages`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        vendorId: currentVendorId,
+        content: message,
+        sender: 'admin'
+      })
+    });
+    document.getElementById('messageInput').value = '';
+    fetchMessages(currentVendorId);
+  } catch (e) {
+    showNotification('Failed to send message', 'error');
+  }
+});
