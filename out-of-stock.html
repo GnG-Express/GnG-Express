@@ -74,6 +74,9 @@
         <a href="#" class="admin-nav-item" id="logoutBtn">
           <i class="fas fa-sign-out-alt"></i> Logout
         </a>
+        <a href="#" class="admin-nav-item" data-section="admins">
+          <i class="fas fa-user-shield"></i> Admins
+        </a>
       </nav>
     </div>
     
@@ -359,6 +362,42 @@
             </tr>
           </thead>
           <tbody id="vendorsTable">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Users Section -->
+      <div id="usersSection" style="display:none;">
+        <h2>Admins</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTable">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Admins Section -->
+      <div id="adminsSection" style="display:none;">
+        <h2>Admins</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="adminsTable">
             <!-- Filled by JS -->
           </tbody>
         </table>

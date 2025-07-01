@@ -31,7 +31,8 @@ const sections = {
   orders: document.getElementById('ordersSection'),
   inquiries: document.getElementById('inquiriesSection'),
   products: document.getElementById('productsSection'),
-  vendors: document.getElementById('vendorsSection'), // <-- ADD THIS LINE
+  vendors: document.getElementById('vendorsSection'),
+  admins: document.getElementById('adminsSection'), // <-- renamed from users
   settings: document.getElementById('settingsSection'),
   contentUpdate: document.getElementById('contentUpdateSection')
 };
@@ -356,6 +357,12 @@ document.addEventListener('DOMContentLoaded', function() {
       alert(err.message || 'Registration failed.');
     }
   });
+
+  document.querySelector('[data-section="admins"]').addEventListener('click', function(e) {
+    e.preventDefault();
+    showSection('admins');
+    fetchAdmins();
+  });
 });
 
 // ===== Helper Functions =====
@@ -450,6 +457,17 @@ async function fetchVendors() {
   } catch (e) {
     showNotification('Failed to fetch vendors', 'error');
     renderVendorsTable([]);
+  }
+}
+
+async function fetchAdmins() {
+  try {
+    const res = await fetch(`${BACKEND_URL}/users/list`);
+    const data = await res.json();
+    renderAdminsTable(data.users || []);
+  } catch (e) {
+    showNotification('Failed to fetch admins', 'error');
+    renderAdminsTable([]);
   }
 }
 
@@ -718,6 +736,60 @@ function renderVendorsTable(vendors) {
       }
     });
   });
+}
+
+function renderAdminsTable(admins) {
+  const tbody = document.getElementById('adminsTable');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  if (!admins.length) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No admins found</td></tr>`;
+    return;
+  }
+
+  admins.forEach(admin => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${admin.name}</td>
+      <td>${admin.email}</td>
+      <td>
+        <select class="admin-status-dropdown" data-id="${admin._id}">
+          <option value="pending" ${admin.status === 'pending' ? 'selected' : ''}>Pending</option>
+          <option value="approved" ${admin.status === 'approved' ? 'selected' : ''}>Approved</option>
+          <option value="rejected" ${admin.status === 'rejected' ? 'selected' : ''}>Rejected</option>
+        </select>
+      </td>
+      <td>
+        <button class="admin-btn admin-btn-outline admin-btn-sm" onclick="viewAdmin('${admin._id}')">
+          <i class="fas fa-eye"></i> View
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+
+    // Status change handler
+    tr.querySelector('.admin-status-dropdown').addEventListener('change', async function() {
+      const newStatus = this.value;
+      try {
+        const res = await fetch(`${BACKEND_URL}/users/${admin._id}/status`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.error || "Failed to update status");
+        showNotification('Admin status updated!', 'success');
+      } catch (e) {
+        showNotification('Failed to update admin status', 'error');
+      }
+    });
+  });
+}
+
+// Optional: stub for viewAdmin
+function viewAdmin(userId) {
+  showNotification('View admin details coming soon.', 'info');
 }
 
 function renderProductPackages() {
