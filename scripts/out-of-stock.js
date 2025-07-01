@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // New vendor navigation logic
   document.querySelector('[data-section="vendors"]').addEventListener('click', function(e) {
     e.preventDefault();
-    showSection('vendorsSection');
+    showSection('vendors'); // <-- Use 'vendors' not 'vendorsSection'
     fetchVendors();
   });
 
@@ -670,7 +670,7 @@ function renderVendorsTable(vendors) {
   const tbody = document.getElementById('vendorsTable');
   if (!tbody) return;
   tbody.innerHTML = '';
-  
+
   if (!vendors.length) {
     tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No vendors found</td></tr>`;
     return;
@@ -703,19 +703,18 @@ function renderVendorsTable(vendors) {
 
     // Status change handler
     tr.querySelector('.vendor-status-dropdown').addEventListener('change', async function() {
-      const status = this.value;
+      const newStatus = this.value;
       try {
         const res = await fetch(`${BACKEND_URL}/vendors/${vendor._id}/status`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status })
+          body: JSON.stringify({ status: newStatus })
         });
         const result = await res.json();
         if (!res.ok) throw new Error(result.error || "Failed to update status");
         showNotification('Vendor status updated!', 'success');
-        fetchVendors();
-      } catch (err) {
-        showNotification(err.message || 'Failed to update status', 'error');
+      } catch (e) {
+        showNotification('Failed to update vendor status', 'error');
       }
     });
   });
