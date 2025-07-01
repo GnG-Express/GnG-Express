@@ -36,6 +36,7 @@
         
         <button type="submit" class="login-btn">Sign In</button>
       </form>
+      <p class="login-footer">Don't have an account? <a href="#" id="registerLink">Register here</a></p>
     </div>
   </div>
 
@@ -137,6 +138,17 @@
               <i class="fas fa-arrow-up"></i> <span id="inquiriesChange">0%</span> from last month
             </div>
           </div>
+
+          <div class="admin-card">
+            <div class="admin-card-header">
+              <span class="admin-card-title">Total Profit</span>
+              <i class="fas fa-coins" style="color: var(--gold);"></i>
+            </div>
+            <div class="admin-card-value" id="totalProfit">KSh 0</div>
+            <div class="admin-card-change positive">
+              <i class="fas fa-arrow-up"></i> <span id="profitChange">0%</span> from last month
+            </div>
+          </div>
         </div>
         
         <!-- Revenue Chart -->
@@ -149,6 +161,10 @@
                 <option value="30" selected>Last 30 Days</option>
                 <option value="90">Last 90 Days</option>
                 <option value="365">Last Year</option>
+              </select>
+              <select id="revenueType" class="admin-btn admin-btn-outline admin-btn-sm" style="margin-right:1rem;">
+                <option value="revenue">Revenue</option>
+                <option value="profit">Profit</option>
               </select>
             </div>
           </div>
@@ -329,29 +345,22 @@
       </div>
       
       <!-- Vendors Section -->
-      <div id="vendorsSection" style="display: none;">
-        <div class="admin-section-header">
-          <h2 class="admin-section-title">Vendors</h2>
-          <button class="admin-btn admin-btn-primary" id="addVendorBtn">
-            <i class="fas fa-plus"></i> Add Vendor
-          </button>
-        </div>
-        <div class="table-responsive">
-          <table class="admin-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Phone</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="vendorsTable">
-              <!-- Filled by JS -->
-            </tbody>
-          </table>
-        </div>
+      <div id="vendorsSection" style="display:none;">
+        <h2>Vendors</h2>
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vendorsTable">
+            <!-- Filled by JS -->
+          </tbody>
+        </table>
       </div>
       
       <!-- Settings Section -->

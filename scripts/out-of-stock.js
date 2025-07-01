@@ -76,21 +76,18 @@ document.addEventListener('DOMContentLoaded', function() {
     item.addEventListener('click', function(e) {
       e.preventDefault();
       const section = this.dataset.section;
-      if (section === 'logout') {
-        logout();
-        return;
-      }
       showSection(section);
-      if (['dashboard', 'orders', 'inquiries', 'products'].includes(section)) {
-        fetchData();
+      if (section === 'vendors') {
+        fetchVendors();
       }
+      // ...existing logic for other sections...
     });
   });
 
   // New vendor navigation logic
   document.querySelector('[data-section="vendors"]').addEventListener('click', function(e) {
     e.preventDefault();
-    showSection('vendors');
+    showSection('vendorsSection');
     fetchVendors();
   });
 
@@ -267,11 +264,19 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Revenue graph
-  async function loadRevenueGraph() {
+  document.getElementById('revenueType').addEventListener('change', loadRevenueChart);
+
+  async function loadRevenueChart() {
+    const type = document.getElementById('revenueType').value;
     const res = await fetch(`${BACKEND_URL}/orders/revenue-overview`);
     const data = await res.json();
     const labels = data.map(item => item._id);
-    const totals = data.map(item => item.total);
+    let totals;
+    if (type === 'profit') {
+      totals = data.map(item => item.profit || 0);
+    } else {
+      totals = data.map(item => item.total || 0);
+    }
 
     const ctx = document.getElementById('revenueChart').getContext('2d');
 
@@ -401,6 +406,7 @@ async function fetchVendors() {
     renderVendorsTable(data.vendors || []);
   } catch (e) {
     showNotification('Failed to fetch vendors', 'error');
+    renderVendorsTable([]); // Show empty state
   }
 }
 
@@ -427,15 +433,20 @@ function applyFilter(data, filterType) {
 }
 
 function renderDashboard() {
-  // Calculate total revenue from completed orders
   let totalRevenue = 0;
+  let totalProfit = 0;
   const completedOrders = orders.filter(row => (row.status || "").toLowerCase() === "completed");
   completedOrders.forEach(row => {
     const amountStr = (row.orderTotal || '').toString().replace(/[^0-9.]/g, '') || '0';
-    totalRevenue += parseFloat(amountStr) || 0;
+    const revenue = parseFloat(amountStr) || 0;
+    totalRevenue += revenue;
+    // Calculate profit: (selling price - cost price) * kg
+    const kg = parseFloat(row.orderSummary?.match(/(\d+)\s*kg/i)?.[1]) || 0;
+    totalProfit += kg * 60; // 220 - 160 = 60 KES per kg
   });
 
   document.getElementById('totalRevenue').textContent = `KSh ${totalRevenue.toLocaleString()}`;
+  document.getElementById('totalProfit').textContent = `KSh ${totalProfit.toLocaleString()}`; // Add this element in HTML
   document.getElementById('totalOrders').textContent = orders.length;
   document.getElementById('pendingOrders').textContent = orders.filter(row => (row.status || "").toLowerCase() === "pending").length;
   document.getElementById('newInquiries').textContent = inquiries.filter(row => (row.status || "").toLowerCase() === "new").length;
@@ -616,6 +627,12 @@ function renderVendorsTable(vendors) {
   const tbody = document.getElementById('vendorsTable');
   if (!tbody) return;
   tbody.innerHTML = '';
+  if (!vendors.length) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="5" style="text-align:center;color:#888;">No vendors found.</td>`;
+    tbody.appendChild(tr);
+    return;
+  }
   vendors.forEach(v => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -626,6 +643,7 @@ function renderVendorsTable(vendors) {
         <select class="vendor-status-dropdown" data-id="${v._id}">
           <option value="approved"${v.status === 'approved' ? ' selected' : ''}>Approved</option>
           <option value="rejected"${v.status === 'rejected' ? ' selected' : ''}>Rejected</option>
+          <option value="pending"${v.status === 'pending' ? ' selected' : ''}>Pending</option>
         </select>
       </td>
       <td>
@@ -842,17 +860,20 @@ async function searchInquiries() {
 //   }
 // }
 
+// Example for updating order status
 async function updateOrderStatus(orderId, status) {
   try {
-    await fetch(`${BACKEND_URL}/orders/${orderId}`, {
+    const res = await fetch(`${BACKEND_URL}/orders/${orderId}`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status })
     });
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || "Failed to update order.");
     showNotification('Order status updated!', 'success');
-    fetchData();
+    fetchOrders();
   } catch (error) {
-    showNotification('Failed to update order status.', 'error');
+    showNotification(error.message || 'Failed to update order.', 'error');
   }
 }
 
@@ -876,7 +897,7 @@ async function viewOrder(orderId) {
   if (!order) return;
   currentOrderId = order._id;
   // Fetch vendors for assignment
-  let vendorOptions = '<option value="">Unassigned</option>';
+  let vendorOptions = `<option value="admin"${!order.vendor ? ' selected' : ''}>Admin</option>`;
   try {
     const res = await fetch(`${BACKEND_URL}/vendors/list`);
     const data = await res.json();
@@ -889,6 +910,18 @@ async function viewOrder(orderId) {
   // Assignment logs
   const logsHtml = (order.assignmentLogs || []).map(
     log => `<div class="assignment-log"><b>${log.user}</b> - ${log.action} <span style="color:#888;">(${formatDate(log.date)})</span></div>`
+  ).join('');
+  const isAssignedToAdmin = !order.vendor;
+  const statusOptions = [
+    { value: "Pending", label: "Pending" },
+    { value: "Processing", label: "Processing", disabled: isAssignedToAdmin },
+    { value: "In Transit", label: "In Transit" },
+    { value: "Arrived", label: "Arrived" },
+    { value: "Completed", label: "Completed" },
+    { value: "Cancelled", label: "Cancelled" }
+  ];
+  const statusDropdown = statusOptions.map(opt =>
+    `<option value="${opt.value}"${order.status === opt.value ? ' selected' : ''}${opt.disabled ? ' disabled' : ''}>${opt.label}</option>`
   ).join('');
   document.getElementById('orderModalBody').innerHTML = `
     <table class="admin-table">
@@ -939,6 +972,9 @@ function viewInquiry(inquiryId) {
   const commentsHtml = (inquiry.comments || []).slice().reverse().map(c =>
     `<div class="inquiry-comment"><b>${c.user || 'admin'} (${formatDate(c.date)}):</b> ${c.text}</div>`
   ).join('');
+  const logsHtml = (inquiry.activityLogs || []).slice().reverse().map(
+    log => `<div class="inquiry-log"><b>${log.user}</b> - ${log.action} <span style="color:#888;">(${formatDate(log.date)})</span></div>`
+  ).join('');
   document.getElementById('inquiryModalBody').innerHTML = `
     <table class="admin-table">
       <tr><th>Inquiry ID</th><td>${inquiry.inquiryId || ''}</td></tr>
@@ -961,6 +997,9 @@ function viewInquiry(inquiryId) {
           <div id="inquiryCommentsList">${commentsHtml}</div>
           <textarea id="modalInquiryComments" rows="2" style="width:98%;" placeholder="Add a comment..."></textarea>
         </td>
+      </tr>
+      <tr><th>Activity Logs</th>
+        <td>${logsHtml || '<em>No activity logs</em>'}</td>
       </tr>
       <tr><th>Date</th><td>${formatDate(inquiry.createdAt || inquiry.timestamp)}</td></tr>
     </table>
@@ -1029,6 +1068,57 @@ document.getElementById('updateVendorBtn').addEventListener('click', async funct
     fetchVendors();
   } catch (err) {
     showNotification('Failed to update vendor', 'error');
+  }
+});
+
+document.getElementById('updateOrderBtn').addEventListener('click', async function() {
+  if (!currentOrderId) return;
+  const name = document.getElementById('modalOrderName').value;
+  const email = document.getElementById('modalOrderEmail').value;
+  const phone = document.getElementById('modalOrderPhone').value;
+  const orderTotal = parseFloat(document.getElementById('modalOrderTotal').value) || 0;
+  const status = document.getElementById('modalOrderStatus').value;
+  const vendor = document.getElementById('modalOrderVendor').value;
+  const orderSummary = document.getElementById('modalOrderSummary').value;
+  try {
+    const res = await fetch(`${BACKEND_URL}/orders/${currentOrderId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name, email, phone, orderTotal, status, vendor, orderSummary,
+        updatedBy: currentUser?.name || currentUser?.email || 'admin'
+      })
+    });
+    const result = await res.json();
+    if (!res.ok || result.success === false) throw new Error(result.error || "Failed to update order.");
+    showNotification('Order updated!', 'success');
+    closeOrderModal();
+    fetchOrders();
+  } catch (error) {
+    showNotification(error.message || 'Failed to update order.', 'error');
+  }
+});
+
+document.getElementById('updateInquiryBtn').addEventListener('click', async function() {
+  if (!currentInquiryId) return;
+  const status = document.getElementById('modalInquiryStatus').value;
+  const comment = document.getElementById('modalInquiryComments').value.trim();
+  try {
+    const res = await fetch(`${BACKEND_URL}/inquiries/${currentInquiryId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        status, comment,
+        updatedBy: currentUser?.name || currentUser?.email || 'admin'
+      })
+    });
+    const result = await res.json();
+    if (!res.ok || result.success === false) throw new Error(result.error || "Failed to update inquiry.");
+    showNotification('Inquiry updated!', 'success');
+    closeInquiryModal();
+    fetchInquiries();
+  } catch (error) {
+    showNotification(error.message || 'Failed to update inquiry.', 'error');
   }
 });
 
