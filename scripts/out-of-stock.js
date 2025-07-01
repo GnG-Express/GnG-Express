@@ -31,6 +31,7 @@ const sections = {
   orders: document.getElementById('ordersSection'),
   inquiries: document.getElementById('inquiriesSection'),
   products: document.getElementById('productsSection'),
+  vendors: document.getElementById('vendorsSection'), // <-- ADD THIS LINE
   settings: document.getElementById('settingsSection'),
   contentUpdate: document.getElementById('contentUpdateSection')
 };
@@ -270,6 +271,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const type = document.getElementById('revenueType').value;
     const res = await fetch(`${BACKEND_URL}/orders/revenue-overview`);
     const data = await res.json();
+    if (!Array.isArray(data)) {
+      showNotification('Failed to load revenue data', 'error');
+      return;
+    }
     const labels = data.map(item => item._id);
     let totals;
     if (type === 'profit') {
@@ -316,6 +321,41 @@ document.addEventListener('DOMContentLoaded', function() {
     setTimeout(() => revenueChart.resize(), 100);
   }
   loadRevenueChart();
+
+  // Registration modal logic
+  const registerLink = document.getElementById('registerLink');
+  const registerModal = document.getElementById('registerModal');
+  const closeRegisterModalBtn = document.getElementById('closeRegisterModal');
+  const registerForm = document.getElementById('registerForm');
+
+  registerLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    registerModal.classList.add('active');
+  });
+
+  closeRegisterModalBtn.addEventListener('click', function() {
+    registerModal.classList.remove('active');
+  });
+
+  registerForm.addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value;
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    try {
+      const res = await fetch(`${BACKEND_URL}/users/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password })
+      });
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Registration failed.");
+      alert('Registration successful! You can now log in.');
+      registerModal.classList.remove('active');
+    } catch (err) {
+      alert(err.message || 'Registration failed.');
+    }
+  });
 });
 
 // ===== Helper Functions =====
