@@ -359,6 +359,9 @@ async function fetchData() {
     const packagesData = await packagesRes.json();
     packages = packagesData.packages || [];
 
+    // Fetch vendors on page load
+    await fetchVendors();
+
     renderDashboard();
     renderOrdersTable(orders);
     renderInquiriesTable(inquiries);
