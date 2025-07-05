@@ -21,37 +21,7 @@
 </div>
 
   <!-- Header directly included -->
-  <header class="site-header">
-    <div class="header-container">
-      <a href="index.html" class="logo-link">
-        <img src="./assets/G&G.jpg" alt="G&G Express" class="logo">
-      </a>
-      <nav class="main-nav" id="mainNav">
-        <ul>
-          <li><a href="index.html">Home</a></li>
-          <li><a href="about.html">About</a></li>
-          <li><a href="contact.html">Contact</a></li>
-        </ul>
-      </nav>
-      <div class="header-icons">
-        <div class="cart-icon" data-cart-toggle>
-          🛒 <span class="cart-count">0</span>
-        </div>
-        <div class="profile-dropdown">
-          <button class="profile-icon">👤</button>
-          <div class="dropdown-content">
-            <a href="signup.html">Sign Up</a>
-            <a href="login.html">Log In</a>
-          </div>
-        </div>
-        <button class="nav-toggle" aria-label="Toggle navigation" aria-controls="mainNav" aria-expanded="false">
-          <span class="bar"></span>
-          <span class="bar"></span>
-          <span class="bar"></span>
-        </button>
-      </div>
-    </div>
-  </header>
+ <div id="header-include"></div>
 
   <div id="siteContentUpdate" class="content-update-container"></div>
 
@@ -76,6 +46,11 @@
         <img src="assets/premium pishori.png" alt="Premium Pishori Rice">
         <h3>Pishori Rice</h3>
         <p class="price">Ksh 220/kg</p>
+        <div class="price-policy-note" style="background: #f8f8f8; color: #b77b1a; font-size: 0.93em; border-radius: 5px; padding: 6px 12px; margin: 0.5em 0 0.7em 0; text-align: center; box-shadow: 0 1px 4px rgba(0,0,0,0.04);">
+          <i class="fas fa-info-circle" style="margin-right: 6px; color: #b77b1a;"></i>
+          Prices are subject to change with notice.
+        </div>
+
         <button class="btn-secondary">Shop Now</button>
       </div>
     </div>
@@ -125,148 +100,16 @@
   </main>
 
   <!-- Footer directly included -->
-  <footer class="site-footer">
-    <div class="footer-container">
-      <div class="footer-brand">
-        <h3>G&G Express</h3>
-        <p>Direct from Mwea farms to your table</p>
-        <div class="footer-social">
-          <a href="#" class="social-icon">Facebook</a>
-          <a href="#" class="social-icon">Instagram</a>
-          <a href="#" class="social-icon">WhatsApp</a>
-        </div>
-      </div>
-      <div class="footer-links">
-        <div class="links-column">
-          <h4>Shop</h4>
-          <a href="index.html">All Products</a>
-          <a href="coming-soon.html" class="coming-soon-link">Bulk Orders</a>
-          <a href="coming-soon.html" class="coming-soon-link">Subscription</a>
-        </div>
-        <div class="links-column">
-          <h4>Company</h4>
-          <a href="about.html">About Us</a>
-          <a href="about.html#farmers">Our Farmers</a>
-          <a href="contact.html">Contact Us</a>
-        </div>
-        <div class="links-column">
-          <h4>Info</h4>
-          <a href="contact.html#faqs">FAQs</a>
-          <a href="terms.html">Terms & Privacy</a>
-          <a href="customer-guide.html">Customer Guide</a>
-        </div>
-      </div>
-    </div>
-    <div class="footer-copyright">
-      <p>&copy; 2025 G&G Express. All rights reserved.</p>
-    </div>
-  </footer>
+ <div id="footer-include"></div>
 
   <!-- Cart panel and overlay directly included -->
-  <div id="cart-overlay" class="cart-overlay"></div>
-  <div id="cart-panel" class="cart-panel">
-    <div class="cart-header">
-      <h3>Your Cart</h3>
-    </div>
-    <div class="cart-items">
-      <div class="empty-cart-message">
-        Your cart is empty
-      </div>
-    </div>
-    <div class="cart-summary">
-      <div class="cart-total">
-        <span>Total:</span>
-        <span class="total-amount">KSh 0</span>
-      </div>
-      <button class="checkout-btn" disabled>Proceed to Checkout</button>
-      <button class="checkout-btn continue-shopping-btn" type="button">Continue Shopping</button>
-    </div>
-  </div>
+ <div id="cart-panel-include"></div>
 
   <!-- Product modal directly included -->
-  <div class="modal" id="productModal">
-    <div class="modal-content">
-      <span class="close-modal" onclick="closeModal()">&times;</span>
-      <div class="modal-body">
-        <div class="modal-images">
-          <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" id="mainImage">
-          <div class="thumbnail-container">
-            <img src="assets/pishori-rice-bag.webp" alt="Pishori Rice" class="thumbnail">
-            <img src="assets/pishori-rice-closeup.png" alt="Rice Closeup" class="thumbnail">
-            <img src="assets/pishori-rice-cooked.png" alt="Cooked Rice" class="thumbnail">
-          </div>
-        </div>
-        <div class="modal-details">
-          <h2>Pishori Rice</h2>
-          <p class="price">KES <span id="modalPrice">0</span> / <span id="modalPackageLabel">-</span></p>
-          <p class="description">Premium quality Pishori rice directly from Mwea farms. Each grain is carefully selected for size and quality.</p>
-          <div class="package-selector god-tier-select">
-            <label for="package">Package:</label>
-            <select id="package" onchange="updateModalPrice()">
-              <option value="">Select package</option>
-              <!-- All other options removed; will be populated by JS -->
-            </select>
-          </div>
-          <div class="quantity-selector">
-            <label for="quantity">Quantity:</label>
-            <input type="number" id="quantity" min="1" value="1" onchange="updateModalPrice()">
-          </div>
-          <p class="total-price">Total: KES <span id="totalPrice">0</span></p>
-          <button class="btn-primary" id="addToCartBtn" disabled>Add to Cart</button>
-          <a href="contact.html#faqs" class="help-link">
-            <i class="fas fa-question-circle"></i> Need help with your order?
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+ <div id="product-modal-include"></div>
 
-<!-- Checkout modal directly included -->
-<div id="checkout-modal" class="checkout-modal">
-  <div class="checkout-content">
-    <button class="close-checkout">&times;</button>
-    <h2>Complete Your Order</h2>
-    <div class="order-summary">
-      <h3>Order Summary</h3>
-      <div class="order-items">
-        <!-- Items will be added dynamically -->
-      </div>
-      <div class="order-total">
-        <span>Total:</span>
-        <span class="total-amount">KSh 0</span>
-      </div>
-    </div>
-    <form class="checkout-form" id="checkoutForm" method="POST">
-      <input type="hidden" name="_captcha" value="false">
-      <input type="hidden" name="_template" value="table">
-      <input type="hidden" name="_autoresponse" value="Thank you for shopping with G&G Express! Your order has been received. You will receive an email confirmation where we will discuss secure M-Pesa payment and tailor your experience to your needs.">
-      <input type="hidden" name="Order_Summary" id="orderSummaryField">
-      <input type="hidden" name="Order_Total" id="orderTotalField">
-      <div class="form-group">
-        <label for="checkout-name">Full Name:</label>
-        <input id="checkout-name" name="name" type="text" required placeholder="Your Name">
-      </div>
-      <div class="form-group">
-        <label for="checkout-phone">Phone Number:</label>
-        <input id="checkout-phone" name="phone" type="tel" required placeholder="07XXXXXXXX">
-      </div>
-      <div class="form-group">
-        <label for="checkout-email">Email Address:</label>
-        <input id="checkout-email" name="email" type="email" required placeholder="you@email.com">
-      </div>
-      <div class="form-group">
-        <label for="checkout-location">Preferred Delivery Location (Optional):</label>
-        <input id="checkout-location" name="location" type="text" placeholder="Area, building, or landmark">
-      </div>
-      <div class="form-group">
-        <label for="checkout-note">Delivery Note (Optional):</label>
-        <textarea id="checkout-note" name="note" rows="3" placeholder="Special instructions, alternative phone, etc."></textarea>
-      </div>
-
-      <button type="submit" class="place-order-btn">Place Order</button>
-    </form>
-  </div>
-</div>
+  <!-- Checkout modal directly included -->
+ <div id="checkout-modal-include"></div>
 
 
 

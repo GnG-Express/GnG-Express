@@ -749,12 +749,14 @@ function renderAdminsTable(admins) {
   }
 
   admins.forEach(admin => {
+    const isSuperAdmin = admin.email === "gngexpress001@gmail.com";
+    const isCurrentSuperAdmin = currentUser && currentUser.email === "gngexpress001@gmail.com";
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${admin.name}</td>
-      <td>${admin.email}</td>
+      <td>${admin.email}${isSuperAdmin ? ' <span style="color:var(--gold);font-weight:bold;">(Super Admin)</span>' : ''}</td>
       <td>
-        <select class="admin-status-dropdown" data-id="${admin._id}">
+        <select class="admin-status-dropdown" data-id="${admin._id}" ${(!isCurrentSuperAdmin || isSuperAdmin) ? 'disabled' : ''}>
           <option value="pending" ${admin.status === 'pending' ? 'selected' : ''}>Pending</option>
           <option value="approved" ${admin.status === 'approved' ? 'selected' : ''}>Approved</option>
           <option value="rejected" ${admin.status === 'rejected' ? 'selected' : ''}>Rejected</option>
@@ -768,22 +770,24 @@ function renderAdminsTable(admins) {
     `;
     tbody.appendChild(tr);
 
-    // Status change handler
-    tr.querySelector('.admin-status-dropdown').addEventListener('change', async function() {
-      const newStatus = this.value;
-      try {
-        const res = await fetch(`${BACKEND_URL}/users/${admin._id}/status`, {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ status: newStatus })
-        });
-        const result = await res.json();
-        if (!res.ok) throw new Error(result.error || "Failed to update status");
-        showNotification('Admin status updated!', 'success');
-      } catch (e) {
-        showNotification('Failed to update admin status', 'error');
-      }
-    });
+    // Only super admin can change status, and not for themselves
+    if (isCurrentSuperAdmin && !isSuperAdmin) {
+      tr.querySelector('.admin-status-dropdown').addEventListener('change', async function() {
+        const newStatus = this.value;
+        try {
+          const res = await fetch(`${BACKEND_URL}/users/${admin._id}/status`, {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: newStatus, adminEmail: currentUser.email })
+          });
+          const result = await res.json();
+          if (!res.ok) throw new Error(result.error || "Failed to update status");
+          showNotification('Admin status updated!', 'success');
+        } catch (e) {
+          showNotification('Failed to update admin status', 'error');
+        }
+      });
+    }
   });
 }
 
