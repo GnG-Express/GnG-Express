@@ -90,23 +90,156 @@ function isNonEmpty(str) {
 
 // ===== Static Initialization =====
 document.addEventListener('DOMContentLoaded', () => {
-  dom.header = document.querySelector('header.site-header');
-  dom.footer = document.querySelector('footer.site-footer');
-  dom.cartPanel = document.getElementById('cart-panel');
-  dom.cartOverlay = document.getElementById('cart-overlay');
-  dom.checkoutModal = document.getElementById('checkout-modal');
-  dom.productModal = document.getElementById('productModal');
+  // Wait a bit to ensure elements are loaded
 
-  setupHeader();
-  setupCart();
-  setupCheckout();
-  // setupProductModal(); // <-- REMOVE THIS LINE
-  setupServiceWorker();
-  injectScrollToTopCTA();
+  // Ensure product modal Add to Cart button works
+  setTimeout(() => {
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    if (addToCartBtn && !addToCartBtn._listenerAttached) {
+      addToCartBtn.addEventListener('click', addToCart);
+      addToCartBtn._listenerAttached = true;
+    }
+  }, 300);
 
-  // Initialize cart from localStorage
-  state.cart = getCart();
-  updateCartUI();
+  // Ensure checkout form Place Order button works
+  setTimeout(() => {
+    const checkoutForm = document.getElementById('checkoutForm');
+    if (checkoutForm && !checkoutForm._listenerAttached) {
+      checkoutForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Validate form
+        if (!checkoutForm.elements['name'].value.trim()) {
+          showFieldError(checkoutForm, '#checkout-name', 'Please enter your name');
+          return;
+        }
+        if (!checkoutForm.elements['phone'].value.trim() || !isValidPhone(checkoutForm.elements['phone'].value)) {
+          showFieldError(checkoutForm, '#checkout-phone', 'Please enter a valid phone number');
+          return;
+        }
+        if (!checkoutForm.elements['email'].value.trim() || !isValidEmail(checkoutForm.elements['email'].value)) {
+          showFieldError(checkoutForm, '#checkout-email', 'Please enter a valid email');
+          return;
+        }
+
+        // Calculate total kgs in cart
+        let cart = [];
+        try {
+          cart = JSON.parse(localStorage.getItem('cart')) || [];
+        } catch { cart = []; }
+        let totalKgs = 0;
+        cart.forEach(item => {
+          let match = /(\d+)\s?kg/i.exec(item.name);
+          let kgs = match ? parseInt(match[1], 10) : 0;
+          totalKgs += kgs * item.quantity;
+        });
+
+        // Minimum 5kg check
+        if (totalKgs < 5) {
+          showCheckoutError(e.target, `Minimum order is 5kg. Your current total is ${totalKgs}kg.`);
+          return;
+        }
+
+        // Rate limit: 7/hr/user
+        if (!canSubmitForm('checkoutForm', 7, 60 * 60 * 1000)) {
+          showCheckoutError(e.target, "Order rate limit reached. Please try again after 1 hour.");
+          return;
+        }
+
+        // Build order summary from the cart
+        let summary = '';
+        let total = 0;
+        cart.forEach(item => {
+          summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
+          total += item.price * item.quantity;
+        });
+
+        // Gather form data
+        const form = e.target;
+        const name = form.elements['name'].value;
+        const phone = form.elements['phone'].value;
+        const email = form.elements['email'].value;
+        const location = form.elements['location']?.value || '';
+        const note = form.elements['note']?.value || '';
+
+        // Build orderData object
+        const orderData = {
+          type: "addOrder",
+          name,
+          phone,
+          email,
+          location,
+          note,
+          orderSummary: summary.trim(),
+          orderTotal: total
+        };
+
+        // Show loading state
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="loading-dots">Processing</span>';
+
+        // Send to backend and await response
+        try {
+          const res = await fetch(`${BACKEND_URL}/api/orders`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(orderData)
+          });
+          const result = await res.json();
+
+          // Only show success if orderId is present
+          if (result && result.order && result.order.orderId) {
+            // Clear cart and form
+            localStorage.removeItem('cart');
+            if (typeof updateCartUI === 'function') updateCartUI();
+            checkoutForm.reset();
+
+            // Show success message with Order ID
+            const modalContent = checkoutForm.closest('.checkout-content');
+            if (modalContent) {
+              modalContent.innerHTML = `
+                <div class="success-hero" style="max-width:600px;margin:8vh auto 0 auto;background:#fff;border-radius:18px;box-shadow:0 8px 40px rgba(27,60,19,0.12),0 1.5px 0 0 #ffe066;padding:3rem 2.5rem 2.5rem 2.5rem;text-align:center;border-top:8px solid var(--gold);overflow:auto;">
+                  <div class="success-icon" style="font-size:3.5rem;color:var(--success);margin-bottom:1.2rem;">✔️</div>
+                  <h2 style="color:var(--primary);font-size:2.5rem;margin-bottom:1.2rem;font-family:'Playfair Display',serif;background:linear-gradient(90deg,var(--gold),var(--primary));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:1px 1px 8px rgba(212,175,55,0.12);">Order Confirmed!</h2>
+                  <p style="color:var(--dark);font-size:1.18rem;margin-bottom:2.2rem;line-height:1.7;">
+                    Thank you for choosing <span style="color:var(--gold);font-weight:600;">G&amp;G Express</span>!<br>
+                    Your order has been received and is being processed.<br><br>
+                    <b>Your Order Number:</b> <span style="color:var(--primary);font-weight:700;">${result.order.orderId}</span><br>
+                    You will receive an email confirmation shortly.
+                  </p>
+                  <a href="index.html" class="back-home" style="display:inline-block;margin-top:1.5rem;color:#fff;background:linear-gradient(90deg,var(--primary),var(--gold));border:none;border-radius:30px;padding:0.9em 2.2em;font-size:1.1rem;font-weight:600;text-decoration:none;box-shadow:0 4px 15px rgba(212,175,55,0.13);transition:all 0.3s;">Back to Home</a>
+                </div>
+              `;
+            }
+          } else {
+            showCheckoutError(checkoutForm, "Order failed. Please try again.");
+          }
+        } catch (err) {
+          showCheckoutError(checkoutForm, "Order failed. Please check your connection and try again.");
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalBtnText;
+        }
+      });
+      checkoutForm._listenerAttached = true;
+    }
+  }, 300);
+  setTimeout(() => {
+    dom.header = document.querySelector('header.site-header');
+    dom.footer = document.querySelector('footer.site-footer');
+    dom.cartPanel = document.getElementById('cart-panel');
+    dom.cartOverlay = document.getElementById('cart-overlay');
+    dom.checkoutModal = document.getElementById('checkout-modal');
+    dom.productModal = document.getElementById('productModal');
+    // Now call your setup functions
+    setupHeader();
+    setupCart();
+    setupCheckout();
+    setupProductModal();
+    // ...etc
+  }, 200); // 200ms delay to allow fetches to complete
 });
 
 // ===== Cart Storage Functions =====
@@ -193,6 +326,17 @@ function renderCartItems() {
       removeFromCart(this.dataset.id);
     });
   });
+
+  // After rendering checkoutBtn:
+  if (checkoutBtn && !document.querySelector('.min-weight-note')) {
+    const note = document.createElement('div');
+    note.className = 'min-weight-note';
+    note.style.color = '#b8860b';
+    note.style.fontSize = '1em';
+    note.style.margin = '0.5em 0 0.5em 0';
+    note.innerHTML = '<i class="fas fa-info-circle"></i> Minimum order weight: 5kg';
+    checkoutBtn.parentNode.insertBefore(note, checkoutBtn.nextSibling);
+  }
 }
 
 function updateCartCount() {
@@ -333,6 +477,24 @@ async function setupProductModal() {
         select.appendChild(opt);
       }
     });
+  }
+
+  // === Inject "Minimum weight: 5kg" notice if not already present ===
+  const modal = document.getElementById('productModal');
+  if (modal && !modal.querySelector('.min-weight-note')) {
+    const note = document.createElement('div');
+    note.className = 'min-weight-note';
+    note.style.color = '#b8860b';
+    note.style.fontSize = '1em';
+    note.style.margin = '0.5em 0 0.5em 0';
+    note.innerHTML = '<i class="fas fa-info-circle"></i> Minimum order weight: 5kg';
+    // Insert just above the Add to Cart button
+    const addToCartBtn = modal.querySelector('#addToCartBtn');
+    if (addToCartBtn) {
+      addToCartBtn.parentNode.insertBefore(note, addToCartBtn);
+    } else {
+      modal.appendChild(note);
+    }
   }
 }
 
@@ -1022,4 +1184,22 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
  });
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Helper to load HTML into a target element
+  function loadCommon(selector, url) {
+    fetch(url)
+      .then(res => res.text())
+      .then(html => {
+        const el = document.querySelector(selector);
+        if (el) el.innerHTML = html;
+      });
+  }
+
+  loadCommon('#header-include', 'common/header.html');
+  loadCommon('#footer-include', 'common/footer.html');
+  loadCommon('#cart-panel-include', 'common/cart-panel.html');
+  loadCommon('#product-modal-include', 'common/product-modal.html');
+  loadCommon('#checkout-modal-include', 'common/checkout.html');
+});
 
