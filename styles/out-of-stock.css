@@ -631,6 +631,57 @@
 .message-content { background: #f6f6f6; display: inline-block; padding: 8px 14px; border-radius: 8px; }
 .admin-message .message-content { background: #e6ffe6; }
 
+/* Admin Cart Panel & Product Modal inside Order Modal */
+#orderModal .cart-overlay,
+#orderModal .cart-panel,
+#orderModal .modal {
+  position: fixed;
+  z-index: 2001;
+  top: 0; left: 0; right: 0; bottom: 0;
+  margin: auto;
+  display: none;
+}
+#orderModal .cart-panel.active,
+#orderModal .cart-overlay.active,
+#orderModal .modal.show {
+  display: block;
+}
+#admin-cart-panel {
+  right: 0;
+  left: auto;
+  width: 420px;
+  max-width: 100vw;
+  height: 100%;
+  background: #fff;
+  box-shadow: -8px 0 30px rgba(0,0,0,0.15);
+  border-left: 1px solid #eee;
+  position: fixed;
+  z-index: 2002;
+  top: 0;
+  transition: transform 0.5s cubic-bezier(0.16, 0.84, 0.44, 1);
+  transform: translateX(100%);
+}
+#admin-cart-panel.active {
+  transform: translateX(0);
+}
+#admin-cart-overlay {
+  background: rgba(0,0,0,0.6);
+  z-index: 2001;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  opacity: 1;
+  pointer-events: all;
+  display: block;
+}
+#adminProductModal {
+  z-index: 2003;
+  display: none;
+}
+#adminProductModal.show {
+  display: block;
+  opacity: 1;
+}
+
 @media (max-width: 992px) {
   .admin-container {
     grid-template-columns: 1fr;

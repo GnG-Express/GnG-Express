@@ -2284,3 +2284,14 @@ h2::after {
 @media (max-width: 400px) {
   :root { --header-height: 5px; }
 }
+
+.extra-charge-note {
+  color: #b8860b;
+  font-size: 0.98em;
+  margin-top: 0.3em;
+}
+.final-total {
+  font-weight: bold;
+  border-top: 2px solid var(--gold);
+  margin-top: 0.5em;
+}

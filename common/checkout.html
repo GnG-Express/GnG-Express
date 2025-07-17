@@ -9,8 +9,19 @@
         <!-- Items will be added dynamically -->
       </div>
       <div class="order-total">
-        <span>Total:</span>
+        <span>Subtotal:</span>
         <span class="total-amount">KSh 0</span>
+      </div>
+      <div class="order-total">
+        <span>Delivery Fee (Nairobi CBD):</span>
+        <span class="delivery-fee">KSh 100</span>
+      </div>
+      <div class="order-total final-total">
+        <span>Total:</span>
+        <span class="final-amount">KSh 0</span>
+      </div>
+      <div class="min-weight-note">
+        <i class="fas fa-info-circle"></i> Minimum order weight: 5kg
       </div>
     </div>
      <form class="checkout-form" id="checkoutForm" method="POST">
@@ -32,8 +43,18 @@
         <input id="checkout-email" name="email" type="email" required placeholder="you@email.com">
       </div>
       <div class="form-group">
-        <label for="checkout-location">Preferred Delivery Location (Optional):</label>
+        <label for="delivery-location-select">Delivery Location:</label>
+        <select id="delivery-location-select" name="deliveryLocation" required>
+          <option value="Nairobi CBD">Nairobi CBD (Tea Room Pickup)</option>
+          <option value="Other">Other (within Nairobi)</option>
+        </select>
+      </div>
+      <div class="form-group" id="other-location-group" style="display:none;">
+        <label for="checkout-location">Specify Delivery Location:</label>
         <input id="checkout-location" name="location" type="text" placeholder="Area, building, or landmark">
+        <div class="extra-charge-note" style="color:#b8860b;font-size:0.98em;margin-top:0.3em;">
+          <i class="fas fa-info-circle"></i> Extra charges may apply for delivery outside Nairobi CBD.
+        </div>
       </div>
       <div class="form-group">
         <label for="checkout-note">Delivery Note (Optional):</label>

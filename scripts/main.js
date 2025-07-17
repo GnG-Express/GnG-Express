@@ -24,6 +24,8 @@ const state = {
   }
 };
 
+const DELIVERY_FEE_CBD = 100;
+
 const dom = {
   header: null,
   footer: null,
@@ -122,6 +124,19 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        // Delivery location logic
+        const deliveryLocationDropdown = checkoutForm.elements['deliveryLocation'].value;
+        let deliveryLocationToSave = deliveryLocationDropdown;
+        let customLocation = '';
+        if (deliveryLocationDropdown === 'Other') {
+          customLocation = checkoutForm.elements['location'].value.trim();
+          if (!customLocation) {
+            showFieldError(checkoutForm, '#checkout-location', 'Please specify your delivery location');
+            return;
+          }
+          deliveryLocationToSave = customLocation;
+        }
+
         // Calculate total kgs in cart
         let cart = [];
         try {
@@ -148,19 +163,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Build order summary from the cart
         let summary = '';
-        let total = 0;
+        let subtotal = 0;
         cart.forEach(item => {
           summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
-          total += item.price * item.quantity;
+          subtotal += item.price * item.quantity;
         });
 
+        // Final total
+        const finalTotal = subtotal + DELIVERY_FEE_CBD;
+
         // Gather form data
-        const form = e.target;
-        const name = form.elements['name'].value;
-        const phone = form.elements['phone'].value;
-        const email = form.elements['email'].value;
-        const location = form.elements['location']?.value || '';
-        const note = form.elements['note']?.value || '';
+        const name = checkoutForm.elements['name'].value;
+        const phone = checkoutForm.elements['phone'].value;
+        const email = checkoutForm.elements['email'].value;
+        const note = checkoutForm.elements['note']?.value || '';
 
         // Build orderData object
         const orderData = {
@@ -168,14 +184,14 @@ document.addEventListener('DOMContentLoaded', () => {
           name,
           phone,
           email,
-          location,
+          deliveryLocation: deliveryLocationToSave, // Always save the actual location
           note,
           orderSummary: summary.trim(),
-          orderTotal: total
+          orderTotal: finalTotal
         };
 
         // Show loading state
-        const submitBtn = form.querySelector('button[type="submit"]');
+        const submitBtn = checkoutForm.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<span class="loading-dots">Processing</span>';
@@ -191,7 +207,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Only show success if orderId is present
           if (result && result.order && result.order.orderId) {
-            // Clear cart and form
             localStorage.removeItem('cart');
             if (typeof updateCartUI === 'function') updateCartUI();
             checkoutForm.reset();
@@ -679,11 +694,50 @@ function setupCheckout() {
   });
 }
 
+function setupDeliveryLocationDropdown() {
+  const locationSelect = document.getElementById('delivery-location-select');
+  const otherLocationGroup = document.getElementById('other-location-group');
+  if (locationSelect && otherLocationGroup) {
+    locationSelect.addEventListener('change', function() {
+      if (this.value === 'Other') {
+        otherLocationGroup.style.display = '';
+      } else {
+        otherLocationGroup.style.display = 'none';
+        document.getElementById('checkout-location').value = '';
+      }
+    });
+    // Ensure correct initial state
+    if (locationSelect.value === 'Other') {
+      otherLocationGroup.style.display = '';
+    } else {
+      otherLocationGroup.style.display = 'none';
+    }
+  }
+}
+
+// Delivery location dropdown logic
+document.addEventListener('DOMContentLoaded', function() {
+  const locationSelect = document.getElementById('delivery-location-select');
+  const otherLocationGroup = document.getElementById('other-location-group');
+  if (locationSelect && otherLocationGroup) {
+    locationSelect.addEventListener('change', function() {
+      if (this.value === 'Other') {
+        otherLocationGroup.style.display = '';
+      } else {
+        otherLocationGroup.style.display = 'none';
+        document.getElementById('checkout-location').value = '';
+      }
+    });
+  }
+});
+
 function renderCheckoutItems() {
   const orderItemsContainer = document.querySelector('.order-items');
   const orderTotalElement = document.querySelector('.order-total .total-amount');
+  const deliveryFeeElement = document.querySelector('.delivery-fee');
+  const finalAmountElement = document.querySelector('.final-amount');
 
-  if (!orderItemsContainer || !orderTotalElement) return;
+  if (!orderItemsContainer || !orderTotalElement || !deliveryFeeElement || !finalAmountElement) return;
 
   orderItemsContainer.innerHTML = state.cart.map(item => `
     <div class="checkout-item">
@@ -692,8 +746,10 @@ function renderCheckoutItems() {
     </div>
   `).join('');
 
-  const total = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  orderTotalElement.textContent = `KSh ${total.toFixed(2)}`;
+  const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  orderTotalElement.textContent = `KSh ${subtotal.toFixed(2)}`;
+  deliveryFeeElement.textContent = `KSh ${DELIVERY_FEE_CBD}`;
+  finalAmountElement.textContent = `KSh ${(subtotal + DELIVERY_FEE_CBD).toFixed(2)}`;
 }
 
 function showFieldError(form, fieldSelector, message) {
@@ -1055,15 +1111,26 @@ document.addEventListener('DOMContentLoaded', function() {
         showFieldError(checkoutForm, '#checkout-name', 'Please enter your name');
         return;
       }
-      
       if (!checkoutForm.elements['phone'].value.trim() || !isValidPhone(checkoutForm.elements['phone'].value)) {
         showFieldError(checkoutForm, '#checkout-phone', 'Please enter a valid phone number');
         return;
       }
-      
       if (!checkoutForm.elements['email'].value.trim() || !isValidEmail(checkoutForm.elements['email'].value)) {
         showFieldError(checkoutForm, '#checkout-email', 'Please enter a valid email');
         return;
+      }
+
+      // Delivery location logic
+      const deliveryLocationDropdown = checkoutForm.elements['deliveryLocation'].value;
+      let deliveryLocationToSave = deliveryLocationDropdown;
+      let customLocation = '';
+      if (deliveryLocationDropdown === 'Other') {
+        customLocation = checkoutForm.elements['location'].value.trim();
+        if (!customLocation) {
+          showFieldError(checkoutForm, '#checkout-location', 'Please specify your delivery location');
+          return;
+        }
+        deliveryLocationToSave = customLocation;
       }
 
       // Calculate total kgs in cart
@@ -1092,19 +1159,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Build order summary from the cart
       let summary = '';
-      let total = 0;
+      let subtotal = 0;
       cart.forEach(item => {
         summary += `${item.quantity} × ${item.name} (KSh ${(item.price * item.quantity).toFixed(2)})\n`;
-        total += item.price * item.quantity;
+        subtotal += item.price * item.quantity;
       });
 
+      // Final total
+      const finalTotal = subtotal + DELIVERY_FEE_CBD;
+
       // Gather form data
-      const form = e.target;
-      const name = form.elements['name'].value;
-      const phone = form.elements['phone'].value;
-      const email = form.elements['email'].value;
-      const location = form.elements['location']?.value || '';
-      const note = form.elements['note']?.value || '';
+      const name = checkoutForm.elements['name'].value;
+      const phone = checkoutForm.elements['phone'].value;
+      const email = checkoutForm.elements['email'].value;
+      const note = checkoutForm.elements['note']?.value || '';
 
       // Build orderData object
       const orderData = {
@@ -1112,19 +1180,19 @@ document.addEventListener('DOMContentLoaded', function() {
         name,
         phone,
         email,
-        location,
+        deliveryLocation: deliveryLocationToSave, // Always save the actual location
         note,
         orderSummary: summary.trim(),
-        orderTotal: total // <-- send as a number, not a string!
+        orderTotal: finalTotal
       };
 
       // Show loading state
-      const submitBtn = form.querySelector('button[type="submit"]');
+      const submitBtn = checkoutForm.querySelector('button[type="submit"]');
       const originalBtnText = submitBtn.innerHTML;
       submitBtn.disabled = true;
       submitBtn.innerHTML = '<span class="loading-dots">Processing</span>';
 
-      // Send to Google Apps Script as JSON and await response
+      // Send to backend and await response
       try {
         const res = await fetch(`${BACKEND_URL}/api/orders`, {
           method: "POST",
@@ -1135,7 +1203,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Only show success if orderId is present
         if (result && result.order && result.order.orderId) {
-          // Clear cart and form
           localStorage.removeItem('cart');
           if (typeof updateCartUI === 'function') updateCartUI();
           checkoutForm.reset();
@@ -1167,32 +1234,19 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.innerHTML = originalBtnText;
       }
     });
+    checkoutForm._listenerAttached = true;
   }
-
-  // Ensure product modal Add to Cart button works
-  const addToCartBtn = document.getElementById('addToCartBtn');
-  if (addToCartBtn) {
-    addToCartBtn.addEventListener('click', addToCart);
-  }
-
-  // Fix modal open from product page (if you have a button/link)
-  document.querySelectorAll('[data-open-product-modal]').forEach(btn => {
-    btn.addEventListener('click', function(e) {
-      e.preventDefault();
-      openProductModal();
-    });
-  });
-
- });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
   // Helper to load HTML into a target element
-  function loadCommon(selector, url) {
+  function loadCommon(selector, url, callback) {
     fetch(url)
       .then(res => res.text())
       .then(html => {
         const el = document.querySelector(selector);
         if (el) el.innerHTML = html;
+        if (typeof callback === 'function') callback();
       });
   }
 
@@ -1200,6 +1254,6 @@ document.addEventListener('DOMContentLoaded', function() {
   loadCommon('#footer-include', 'common/footer.html');
   loadCommon('#cart-panel-include', 'common/cart-panel.html');
   loadCommon('#product-modal-include', 'common/product-modal.html');
-  loadCommon('#checkout-modal-include', 'common/checkout.html');
+  loadCommon('#checkout-modal-include', 'common/checkout.html', setupDeliveryLocationDropdown); // <-- Add callback here
 });
 
